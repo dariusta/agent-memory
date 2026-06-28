@@ -5,3 +5,13 @@
 
 # Local wiki config (machine-specific absolute paths); track .env.example instead
 .env
+
+# claude-obsidian runtime / wiki auto-distill (transient — keep mode.json tracked)
+.vault-meta/distill.log
+.vault-meta/distill.last
+.vault-meta/distill-ctx.txt
+.vault-meta/hook.log
+.vault-meta/locks/
+.vault-meta/chunks/
+.vault-meta/bm25/
+.vault-meta/transport.json
