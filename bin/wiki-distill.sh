@@ -66,11 +66,25 @@ CTX_FILE="$META/distill-ctx.txt"
 PROMPT="A coding-agent session just ended (event: $EVENT). Read the context file $CTX_FILE; if it names a transcript file, read that transcript. Then use the wiki-update skill to distill any DURABLE, reusable knowledge (decisions, architecture, gotchas, how-tos) from that session into the Obsidian wiki at $VAULT/wiki, and refresh wiki/hot.md. Be conservative: if nothing meaningful or reusable happened, make no changes and stop. Do not ask questions; run non-interactively."
 
 # 5) Spawn detached + recursion-guarded; survive parent exit.
+#    claude runs to completion, THEN we self-commit the wiki: the claude-obsidian
+#    plugin's auto-commit PostToolUse hook does not fire in headless `-p` mode.
 log "spawning headless distill (transcript=${TRANSCRIPT:-none})"
 (
   cd "$VAULT" 2>/dev/null || exit 0
-  WIKI_DISTILL=1 nohup claude -p "$PROMPT" --permission-mode acceptEdits \
-    >>"$LOG" 2>&1 &
-) </dev/null >/dev/null 2>&1 &
+  WIKI_DISTILL=1 nohup claude -p "$PROMPT" --permission-mode acceptEdits >>"$LOG" 2>&1
+  if [ -d .git ] && [ ! -f .vault-meta/auto-commit.disabled ]; then
+    # Stage each path independently (a missing/empty path must not abort the rest),
+    # then commit the staged index WITHOUT a pathspec — `git commit -- <pathspec>`
+    # fatally errors if any listed pathspec has nothing staged.
+    for p in wiki .raw .vault-meta/mode.json; do
+      [ -e "$p" ] && git add -A -- "$p" 2>/dev/null || true
+    done
+    if git diff --cached --quiet 2>/dev/null; then
+      log "distill complete: no wiki changes to commit"
+    else
+      git commit -q -m "wiki: auto-distill ($EVENT) $(date '+%Y-%m-%d %H:%M')" 2>/dev/null && log "self-committed wiki changes"
+    fi
+  fi
+) </dev/null >>"$LOG" 2>&1 &
 disown 2>/dev/null || true
 exit 0
