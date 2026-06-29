@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Master index of every page in this knowledge wiki, grouped by category. Updated by wiki-update / wiki-capture on every sync.
-updated: 2026-06-28T12:57:09Z
+updated: 2026-06-29T02:19:37Z
 ---
 
 # Wiki Index
@@ -23,19 +23,18 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 
 ## Pages
 
-_No pages yet. Run `wiki-update` from inside a project to distill its knowledge here, or `wiki-capture` to record a single note._
-
 ### concepts
 
 _(none yet)_
 
 ### entities
 
-_(none yet)_
+- [[trigger-dev]] — background-job platform; env chosen by `TRIGGER_SECRET_KEY` prefix, code changes need a worker redeploy.
 
 ### skills
 
-_(none yet)_
+- [[trigger-dev-environment-routing]] — "TTL (10m) expired" = job routed to the dev env (no persistent worker); diagnose by env/key, don't reach for a `ttl` knob.
+- [[ffmpeg-filter-version-compatibility]] — version-gated filter options (e.g. `curves interp=pchip`, ffmpeg 5.1+) fail the whole graph on older binaries; validate against the prod ffmpeg.
 
 ### references
 
@@ -47,7 +46,7 @@ _(none yet)_
 
 ### projects
 
-_(none yet)_
+- [[stratton-internal]] — Next.js 15 / Railway app generating AI UGC video ads; Trigger.dev background jobs; staging shares the prod Supabase DB.
 
 ### journal
 
