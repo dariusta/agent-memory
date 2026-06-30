@@ -14,6 +14,16 @@
         "skills/ffmpeg-filter-version-compatibility.md",
         "entities/trigger-dev.md"
       ]
+    },
+    "kori": {
+      "source_cwd": "/Users/darius/Documents/Stratton/kori",
+      "last_synced": "2026-06-30T00:36:24Z",
+      "last_commit_synced": null,
+      "sync_source": "session-transcript-distill",
+      "pages_in_vault": [
+        "projects/kori/kori.md",
+        "projects/kori/concepts/kori-navigation-architecture.md"
+      ]
     }
   }
 }
