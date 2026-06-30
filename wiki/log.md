@@ -7,3 +7,4 @@ Append-only audit trail of every wiki operation (sync, capture, query).
 - [2026-06-30T00:36:24Z] WIKI_UPDATE project=kori pages_updated=0 pages_created=2 source_cwd=/Users/darius/Documents/Stratton/kori
 - [2026-06-30T01:35:15Z] WIKI_UPDATE project=kori pages_updated=2 pages_created=2 source_cwd=/Users/darius/Documents/Stratton/kori source=session-transcript-distill notes=ios-onboarding-rating-notifications
 - [2026-06-30T02:05:24Z] WIKI_UPDATE project=iphone-control pages_updated=0 pages_created=7 source_cwd=/Users/darius/Documents/Personal/iphone-control source=session-transcript-distill notes=esp32farm-ios-automation-farm-ig-tiktok-warmup-humanization
+- [2026-06-30T03:48:28Z] WIKI_UPDATE project=iphone-control pages_updated=2 pages_created=0 source_cwd=/Users/darius/Documents/Personal/iphone-control source=session-transcript-distill notes=full-flow-live-campaign-moving-feed-profile-open-defeats-agent-ig-pro-account-for-insights-posting-needs-camera-roll-media

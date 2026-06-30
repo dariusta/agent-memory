@@ -5,7 +5,7 @@ category: skills
 tags: [automation, computer-vision, ocr, llm-agent, reliability, domain/tooling, type/pattern]
 sources: [projects/iphone-control]
 summary: >-
-    A reliability pattern for tapping UI elements whose position/label shifts: try the cheapest deterministic matcher first (captured CV template → fractional region anchor → OCR label) and only escalate to an LLM agent as last resort. Mark optional taps so a miss never fails the flow — and never ship a wrong template, since it actively mis-locks.
+    A reliability pattern for tapping UI elements whose position/label shifts: try the cheapest deterministic matcher first (captured CV template → fractional region anchor → OCR label) and only escalate to an LLM agent as last resort. Mark optional taps so a miss never fails the flow — and never ship a wrong template, since it actively mis-locks. The whole cascade (agent included) assumes a roughly-static frame; a continuously-moving target needs a pause, not more escalation.
 provenance:
   extracted: 0.55
   inferred: 0.4
@@ -14,7 +14,7 @@ base_confidence: 0.62
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T02:05:24Z
-updated: 2026-06-30T02:05:24Z
+updated: 2026-06-30T03:48:28Z
 ---
 
 # Deterministic-first UI automation: the matcher cascade
@@ -40,5 +40,7 @@ Add an element to a shared map once (its template + region + labels) and every f
 ## Where it isn't enough
 
 Fixed fractional anchors can't handle a rail whose icon *order/offset* changes per item. The real fix there is a **dynamic detector** (find the vertical column of icons, then map by order) rather than fixed fractions — a meaningful build, flagged as separate work. ^[inferred]
+
+**The whole cascade — agent included — assumes a roughly-static frame.** A *continuously moving* target defeats every layer: NCC, region, and OCR all read a frame that's already stale by the tap, and the agent can't reason over motion either. In a live wave, every flow that opened the author's profile from a playing feed (`tiktok-follow`, `tiktok-view-profile`, `instagram-view-profile`) failed and the agent could not recover. The fix is **not more escalation** — it's to **pause the motion first** (then the cascade works normally). See [[social-app-automation-mechanics]]. ^[extracted]
 
 Related: pausing a playing video before tapping (so a closed-loop pointer can lock) is a complementary trick — see [[social-app-automation-mechanics]].

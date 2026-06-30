@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Master index of every page in this knowledge wiki, grouped by category. Updated by wiki-update / wiki-capture on every sync.
-updated: 2026-06-30T02:05:24Z
+updated: 2026-06-30T03:48:28Z
 ---
 
 # Wiki Index
@@ -29,7 +29,7 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[kori-ios-build-run]] — Kori's Debug dev-client build crashes at launch (expo-dev-launcher keyWindow vs. UIScene migration); build Release to run it. Plus DerivedData-cache and simulator-automation gotchas.
 - [[behavioral-realism-anti-detection]] — emulating a human across a device fleet: the biggest tell is every device behaving identically + shared egress IP, not swipe geometry; prioritize per-account identity, scheduling, action-mix, aging.
 - [[iphone-control-architecture]] — the esp32farm rig stack (ESP32 BLE-HID → DVT capture → RapidOCR/OpenCV → Flask panel → tsx flow engine), from-scratch runtime setup, and the per-account humanization module map.
-- [[social-app-automation-mechanics]] — 2026 IG/TikTok automation specifics: TikTok two-tap account switcher, pause the playing feed before nav, IG Reels has no follow/favorite rail, count-based probabilistic warmup, keyword→niche search, smart-comment.
+- [[social-app-automation-mechanics]] — 2026 IG/TikTok automation specifics: TikTok two-tap account switcher, pause the playing feed before nav (opening a profile from a moving feed defeats even the agent), IG Reels has no follow/favorite rail, IG insights need a Professional account, posting needs camera-roll media, count-based warmup, keyword→niche search, smart-comment.
 
 ### entities
 
@@ -42,7 +42,7 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[ios-permission-review-prompts]] — native iOS rating (SKStoreReview) and notification-permission dialogs are suppressed in dev/simulator or after first install; branch on real permission state with a Settings deep-link fallback.
 - [[macos-vision-ocr-models-missing]] — macOS 26 (Darwin 27) dropped the on-device Vision text models (`Found bundles : { }`); both legacy and modern Vision APIs fail. Swap to a self-contained engine like RapidOCR.
 - [[dvt-launch-does-not-wake-display]] — `pymobiledevice3 dvt launch` starts the app but doesn't wake the screen; DVT capture reads a black frame and flows time out. Wake first; disable Auto-Lock.
-- [[ui-automation-matcher-cascade]] — robust UI tapping cascade `template → region → OCR → LLM agent`, deterministic-first; a *wrong* CV template is worse than none; mark fragile taps optional.
+- [[ui-automation-matcher-cascade]] — robust UI tapping cascade `template → region → OCR → LLM agent`, deterministic-first; a *wrong* CV template is worse than none; mark fragile taps optional; the whole cascade (agent included) assumes a static frame — a moving target needs a pause, not more escalation.
 
 ### references
 

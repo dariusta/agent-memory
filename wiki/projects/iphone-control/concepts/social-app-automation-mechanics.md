@@ -43,6 +43,14 @@ IG profile-tab nav + switcher-open work (single centre-top username tap → bott
 
 A real trap: on **Instagram Reels** the right rail is like / comment / share / **…** / audio — there is **no follow button and no bookmark/favorite on the rail**. IG "save" lives under the **…** menu and follow is contextual. So generic `follow`/`favorite` rail anchors copied from TikTok will **mis-tap** on IG Reels. TikTok *does* have real rail follow (`+`) and favorite (bookmark) icons. ^[extracted]
 
+## IG insights/analytics require a Professional (Creator) account
+
+Instagram's analytics flows (`analytics-post` / `-overview` / `-audience`) and pro posting features are **gated behind a Professional account** — a personal account simply has no insights surface to read. So a new **`instagram-switch-professional`** flow was built to flip the account first: **Profile → ☰ (top-right) → Settings → "Account type and tools" → "Switch to professional account" → Creator → pick a category**, with the [[ui-automation-matcher-cascade|agent fallback]] driving the multi-step wizard (it's fuzzy Settings navigation, not a fixed rail). Brings the registry to 31 flows. Run the conversion before any analytics flow. ^[extracted]
+
+## Posting flows need pre-existing camera-roll media
+
+`post` / `story` / `reel` can't fabricate content — the composer has to **pick an existing photo/video from the camera roll**. If the device has no media, these flows stall regardless of how good the automation is; that's an environment prerequisite, not an automation bug. Seed the camera roll before testing posting. ^[extracted]
+
 ## Count-based probabilistic warmup model
 
 Warmups were rewritten from time-based (`minutes` + fixed `like_every`) to **count-based + fully randomized**, matching a "Feed Warmr" panel design: ^[extracted]
