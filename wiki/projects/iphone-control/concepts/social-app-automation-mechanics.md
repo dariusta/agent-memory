@@ -5,7 +5,7 @@ category: concepts
 tags: [instagram, tiktok, ios, automation, computer-vision, ocr, domain/tooling, type/howto]
 sources: [projects/iphone-control]
 summary: >-
-    App-version-specific mechanics learned by driving live IG/TikTok on iOS 26.5 — TikTok's two-tap account switcher, pausing the playing feed before any nav, IG Reels having no follow/favorite rail, the count-based probabilistic warmup model, the keyword→niche search prelude, and thread-aware smart-comment generation.
+    App-version-specific mechanics learned by driving live IG/TikTok on iOS 26.5 — TikTok's two-tap account switcher, pausing the playing feed before any nav, the moving-feed avatar-tap that even the agent can't recover, IG Reels having no follow/favorite rail, IG insights needing a Professional account, posting flows needing camera-roll media, the count-based probabilistic warmup, keyword→niche search, and smart-comment generation.
 provenance:
   extracted: 0.65
   inferred: 0.3
@@ -14,7 +14,7 @@ base_confidence: 0.64
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T02:05:24Z
-updated: 2026-06-30T02:05:24Z
+updated: 2026-06-30T03:48:28Z
 ---
 
 # Instagram & TikTok automation mechanics (2026 app UIs)
@@ -24,6 +24,8 @@ Hard-won, app-version-specific facts from driving live Instagram/TikTok on Austi
 ## Pause the playing feed before navigating (TikTok)
 
 The TikTok For You feed (and IG Reels) is a **playing video**. The rig's closed-loop pointer can't lock against motion, so any nav tap (Profile, Search) **drifts** and lands wrong. **Fix: tap screen-center once to pause the video first**, freezing the frame; then every subsequent tap lands. This is a generic preamble for any "navigate away from a playing feed" flow. ^[extracted]
+
+The worst case is **opening the author's profile from the feed** (the avatar/`+` on the right rail): the target is the *moving video element itself*, and in a live wave the `tiktok-follow`, `tiktok-view-profile`, and `instagram-view-profile` flows all failed here — **even the LLM-agent fallback couldn't recover**, because there's no static frame for it to reason over. The fix isn't more agent escalation; it's **pause-first + a CV avatar landmark**. Lesson: the matcher cascade (incl. its agent) assumes a roughly-static frame — see the cascade limit note in [[ui-automation-matcher-cascade]]. ^[extracted]
 
 ## TikTok account switch is a two-tap sequence
 
