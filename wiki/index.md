@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Master index of every page in this knowledge wiki, grouped by category. Updated by wiki-update / wiki-capture on every sync.
-updated: 2026-06-30T00:36:24Z
+updated: 2026-06-30T01:35:15Z
 ---
 
 # Wiki Index
@@ -26,6 +26,7 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 ### concepts
 
 - [[kori-navigation-architecture]] — Kori mixes Expo Router file routes (full-screen pages) with an `activeTab` React state in `Home.tsx` for the 5 home tabs; open a home tab with `setActiveTab`, not a router push.
+- [[kori-ios-build-run]] — Kori's Debug dev-client build crashes at launch (expo-dev-launcher keyWindow vs. UIScene migration); build Release to run it. Plus DerivedData-cache and simulator-automation gotchas.
 
 ### entities
 
@@ -35,6 +36,7 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 
 - [[trigger-dev-environment-routing]] — "TTL (10m) expired" = job routed to the dev env (no persistent worker); diagnose by env/key, don't reach for a `ttl` knob.
 - [[ffmpeg-filter-version-compatibility]] — version-gated filter options (e.g. `curves interp=pchip`, ffmpeg 5.1+) fail the whole graph on older binaries; validate against the prod ffmpeg.
+- [[ios-permission-review-prompts]] — native iOS rating (SKStoreReview) and notification-permission dialogs are suppressed in dev/simulator or after first install; branch on real permission state with a Settings deep-link fallback.
 
 ### references
 
