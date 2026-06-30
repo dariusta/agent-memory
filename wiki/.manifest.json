@@ -17,14 +17,16 @@
     },
     "kori": {
       "source_cwd": "/Users/darius/Documents/Stratton/kori",
-      "last_synced": "2026-06-30T01:35:15Z",
+      "last_synced": "2026-06-30T04:22:30Z",
       "last_commit_synced": null,
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
         "projects/kori/kori.md",
         "projects/kori/concepts/kori-navigation-architecture.md",
         "projects/kori/concepts/kori-ios-build-run.md",
-        "skills/ios-permission-review-prompts.md"
+        "skills/ios-permission-review-prompts.md",
+        "skills/ios26-scene-lifecycle-launch-crash.md",
+        "skills/icloud-synced-repo-breaks-codesign.md"
       ]
     },
     "iphone-control": {

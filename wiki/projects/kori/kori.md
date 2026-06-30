@@ -14,7 +14,7 @@ base_confidence: 0.72
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T00:36:24Z
-updated: 2026-06-30T01:35:15Z
+updated: 2026-06-30T04:22:30Z
 ---
 
 # Kori
@@ -41,7 +41,7 @@ Kori is a **React Native / Expo** mobile app (iOS-focused) for learning Korean, 
 
 - [[kori-navigation-architecture]] — the app mixes **two** navigation models: Expo Router file routes for full-screen pages, and an in-`Home.tsx` `activeTab` React-state switcher for the five home tabs (`Home`/`Learn`/`Speak`/`Rewards`/`Profile`). Knowing which model a destination uses is the difference between `router.push('/x')` and `setActiveTab('X')`. ^[inferred]
 - The **Profile** screen is the "Korean Passport" `ProfileTab` (`src/features/home/ProfileTab.tsx`) — it is a home tab, not a route. The home-header avatar opens it via `setActiveTab('Profile')`. ^[extracted]
-- [[kori-ios-build-run]] — building/running Kori on a simulator is non-trivial: the **Debug** dev-client build crashes at launch (`expo-dev-launcher` keyWindow vs. UIScene migration), so you must build **Release**; plus DerivedData-cache and simulator-automation gotchas. ^[extracted]
+- [[kori-ios-build-run]] — building/running Kori is non-trivial. On a **physical iPhone** (this Mac's Xcode-beta has no Simulator) build Release directly with `xcodebuild` + `devicectl`; the first device launch SIGTRAP'd on the [[ios26-scene-lifecycle-launch-crash]] until a SceneDelegate was added; and the iCloud-synced repo forces an out-of-tree derivedDataPath ([[icloud-synced-repo-breaks-codesign]]). On a **simulator** the Debug dev-client crashes (`expo-dev-launcher` keyWindow), so build Release; plus DerivedData-cache and sim-automation gotchas. ^[extracted]
 
 ## Onboarding
 
