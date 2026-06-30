@@ -14,7 +14,7 @@ base_confidence: 0.7
 lifecycle: draft
 lifecycle_changed: 2026-06-29
 created: 2026-06-29T02:19:37Z
-updated: 2026-06-29T02:19:37Z
+updated: 2026-06-30T00:57:44Z
 ---
 
 # Stratton Internal (mimic)
@@ -35,10 +35,18 @@ Source CWD: `/Users/darius/Documents/Stratton/stratton-internal`.
 
 The Trigger.dev environment a job lands in is decided **entirely by the `TRIGGER_SECRET_KEY` prefix** on whichever client calls `tasks.trigger()` (no explicit `configure()` is used). `tr_prod_…` → prod env; `tr_dev_…` → dev env. This single env var is the seam where prod vs staging vs local diverge — see [[trigger-dev-environment-routing]].
 
+## Integrations
+
+- **Scrape Creators** ([[scrape-creators]]) — third-party API for scraping IG/TikTok posts & accounts, wrapped in `packages/integrations/src/scrape-creators.ts`. Powers post/account tracking, the "Mark posted → scrape" flow, and voice scraping. Its single-item fetch endpoints are **GET `?url=`**, not POST + JSON — see [[scrape-creators-get-endpoints]].
+
 ## Incidents distilled (2026-06-28)
 
 - **Video realism pass silently skipped on every run.** `video-postproc.ts` built an ffmpeg `curves` filter with `interp=pchip`, which only exists in ffmpeg ≥ 5.1; the prod container shipped an older ffmpeg, so the whole filter graph hard-failed and every post-process fell through to "skipped." General lesson + fix: [[ffmpeg-filter-version-compatibility]].
 - **"Scrape & find voice" runs expired at 10m, never executed.** Root cause was a **config bug**, not code: the **staging** Railway service held a `tr_dev_…` `TRIGGER_SECRET_KEY`, routing all staging background jobs into the Trigger.dev *dev* environment (which has no persistent worker and a built-in 10-minute queue-TTL). Full diagnosis + the false-start it corrected: [[trigger-dev-environment-routing]]. Resolution: set staging's `TRIGGER_SECRET_KEY` to the prod key (staging already shares the prod DB) and redeploy the worker (it was stale at `v20260622.3` → `v20260629.1`, 63 tasks).
+
+## Incidents distilled (2026-06-29)
+
+- **IG "Mark posted" scrapes 404'd with "Scrape Creators returned 404: Not Found".** `getInstagramPost()` was the **only** Scrape Creators call still using `POST /v1/instagram/post` + JSON body; that endpoint is GET-only, so it 404'd every IG post fetch — across the task panel, account manual-post route, and the async `scrape-post` Trigger job. The account-feed fallback couldn't save them either (raw `/reel/…` URLs carry no handle; rows had `source_handle`/`social_account_id` null). Same bug class as a TikTok GET-migration fix the day before. Fix: GET `?url=` like every other call. Full gotcha: [[scrape-creators-get-endpoints]]. Server-side → needs an app deploy **and** a `trigger deploy`; already-failed rows re-scrape only after a **Refresh**.
 
 ## Operational notes
 
