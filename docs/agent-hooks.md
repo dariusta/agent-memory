@@ -2,26 +2,41 @@
 
 Every coding agent on this machine auto-distills its sessions into this wiki
 (`wiki/`) when a chat ends or context is compacted. All hooks call one shared,
-guarded script: [`bin/wiki-distill.sh`](../bin/wiki-distill.sh).
+guarded script: [`bin/wiki-distill.sh`](../bin/wiki-distill.sh), which spawns a
+detached, headless `claude -p` that reads the ending session's transcript and
+distills durable knowledge via the `wiki-update` skill, then self-commits `wiki/`.
 
-## How it works
-`bin/wiki-distill.sh` spawns a **detached, headless `claude -p`** run that reads
-the ending session's transcript and uses the `wiki-update` skill to distill
-durable knowledge into `wiki/`, refreshing `wiki/hot.md`. It is:
-- **recursion-safe** — sets `WIKI_DISTILL=1`; nested distill sessions short-circuit,
-- **debounced** — `WIKI_DISTILL_DEBOUNCE` seconds (default 120),
-- **non-blocking** — detaches so the parent agent exits instantly,
-- **off-switchable** — `touch ~/.wiki-distill.disabled` to disable everywhere.
+## Guarantees
+- **recursion-safe** — sets `WIKI_DISTILL=1`; the distill's own hooks short-circuit
+- **non-blocking** — detaches; the parent agent exits instantly
+- **transcript-gated** — no real transcript (or <2KB) → no spawn; kills the ephemeral
+  `claude -p` flood that used to waste money and starve real sessions
+- **per-session debounce** — a session distills at most once per `WIKI_DISTILL_DEBOUNCE`
+  (default 900s) for recurring turn/compaction events; true session-end events fire
+  once on new content. Keyed per-session, so one session never blocks another.
+- **off-switch** — `touch ~/.wiki-distill.disabled`
 
-## Wiring per agent
-| Agent | File | Events | Notes |
+## How each agent passes its transcript (they all differ)
+| Agent | Hook file | Events | Transcript source |
 |---|---|---|---|
-| Claude Code | `~/.claude/settings.json` → `hooks` | `SessionEnd`, `PreCompact` | Global (every project). In-session memory loop comes from the claude-obsidian plugin (`Stop`/`PostToolUse`). |
-| Codex | `~/.codex/hooks.json` | `PreCompact` (manual+auto) | No true session-end event exists; `Stop` is per-turn (too noisy), so compaction only. |
-| opencode | `~/.config/opencode/plugins/wiki-distill.js` | `session.compacted` | No session-end; `session.idle` is per-turn, so compaction only. |
-| pi | `~/.pi/agent/extensions/wiki-distill.ts` | `session_shutdown` (quit), `session_compact` | Full coverage. |
-| Gemini CLI | `~/.gemini/settings.json` → `hooks` | `SessionEnd`, `PreCompress` | Full coverage. SessionEnd doesn't wait, but the script detaches so work survives exit. |
+| Claude Code | `~/.claude/settings.json` → `hooks` | SessionEnd (terminal) + PreCompact | stdin JSON `.transcript_path` (JSONL) |
+| Gemini CLI | `~/.gemini/settings.json` → `hooks` | SessionEnd (terminal) + PreCompress | stdin JSON `.transcript_path` (JSONL) |
+| pi | `~/.pi/agent/extensions/wiki-distill.ts` | session_shutdown(quit, terminal) + session_compact | `ctx.sessionManager.getSessionFile()` → arg `$2` |
+| Codex | `<repo>/.codex/hooks.json` (per-project) + `~/.codex/hooks.json` (home) | Stop (per-turn) + PreCompact | hook `jq`s stdin `.transcript_path` → arg `$2` |
+| opencode | `~/.config/opencode/plugins/wiki-distill.js` (+ mavis mirror) | session.compacted + session.idle (per-turn) | **no file** — passes `sessionID` + SQLite DB path (`$2`,`$3`); script rebuilds via `sqlite3` |
 
-## Cost / control
-Each trigger spawns one headless `claude` run. To pause: `touch ~/.wiki-distill.disabled`.
-To resume: remove that file. Logs: `.vault-meta/distill.log`.
+### Notes / limitations
+- **Codex has no global hooks and no session-end.** Hooks are per-project
+  (`.codex/hooks.json`), so it's installed in stratton-internal, kori, iphone-control,
+  and `~` — add more repos by copying that file. `Stop` fires per-turn, so codex
+  distills at most once per debounce window, not exactly at session end. Codex
+  re-prompts to trust a `.codex/hooks.json` the first time it sees new content.
+- **opencode / pi have no true session-end** either — they distill on
+  compaction + idle/turn-end, debounced.
+- **opencode reconstructs from SQLite** (`message`+`part` tables) into a temp file
+  per run; no persistent transcript file exists.
+
+## Control / cost
+Each real session spawns one headless `claude` run (rate-limited per session).
+Pause everywhere: `touch ~/.wiki-distill.disabled`. Tune: `WIKI_DISTILL_DEBOUNCE`
+(seconds), `WIKI_DISTILL_MIN_BYTES`. Logs: `.vault-meta/distill.log`.
