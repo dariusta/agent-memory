@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Master index of every page in this knowledge wiki, grouped by category. Updated by wiki-update / wiki-capture on every sync.
-updated: 2026-07-01T00:11:40Z
+updated: 2026-07-01T00:24:10Z
 ---
 
 # Wiki Index
@@ -29,6 +29,7 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[kori-ios-build-run]] — install Kori on a physical iPhone when Xcode-beta has no Simulator (xcodebuild Release + devicectl, ECID vs CoreDevice UUID); the iOS 26+ scene-lifecycle SIGTRAP + SceneDelegate fix; iCloud-derivedDataPath codesign trap; NODE_BINARY symlink; plus the Debug dev-client keyWindow crash and sim-automation walls.
 - [[behavioral-realism-anti-detection]] — emulating a human across a device fleet: the biggest tell is every device behaving identically + shared egress IP, not swipe geometry; prioritize per-account identity, scheduling, action-mix, aging.
 - [[iphone-control-architecture]] — the esp32farm rig stack (ESP32 BLE-HID → DVT capture → RapidOCR/OpenCV → Flask panel → tsx flow engine), from-scratch runtime setup, and the per-account humanization module map.
+- [[video-url-resolution]] — stratton-internal: a produced video usually lives in the `video_assets` table, not `video_tasks.final_video_url`; resolve any task's playable cut through the canonical `lib/final-video.ts` (single + batch), never a single column.
 - [[social-app-automation-mechanics]] — 2026 IG/TikTok automation specifics: TikTok two-tap account switcher, pause the playing feed before nav (opening a profile from a moving feed defeats even the agent), IG Reels has no follow/favorite rail, IG insights need a Professional account, posting needs camera-roll media (thumbnail picker still brittle → planned --media_index), the replace_text field-edit primitive, 2026 IG top-left-＋/STORY-default composer, count-based warmup, keyword→niche search, smart-comment.
 
 ### entities

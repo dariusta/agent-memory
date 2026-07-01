@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Fast-context scratchpad read first by wiki-query: recent activity, active threads, and key takeaways. Rewritten on every sync.
-updated: 2026-07-01T00:11:40Z
+updated: 2026-07-01T00:24:10Z
 ---
 
 # Hot — Working Memory
@@ -13,15 +13,15 @@ The first thing `wiki-query` reads. Keep it short and current.
 
 ## Recent Activity
 
+- [2026-06-30] Synced **[[stratton-internal]]** — built a **Gallery page** (sidebar "Other" section) showing all produced videos. Durable lesson → new [[video-url-resolution]]: a produced video usually lives in the **`video_assets`** table (public `url` or private `storage_path`), **not** `video_tasks.final_video_url`; the first cut queried only that column and silently dropped most videos. Fix reuses the canonical **`apps/web/lib/final-video.ts`** and adds a batch `resolveFinalVideoUrls()` (N+1-free) next to the single-item resolver. Also noted the **auth-gated-preview boundary** (every dashboard route 302s to `/login` with no Supabase session, so headless visual QA is impossible).
 - [2026-06-30] Synced **[[iphone-control]]** again (Session 6, HEAD `c557148`) — merged into [[social-app-automation-mechanics]] + [[ui-automation-matcher-cascade]]: the harness gained a deterministic **`replace_text`** field-edit primitive (tap → long-press → OCR "Select All" or backspace ×30 → type) that fixed the edit-profile flows the LLM kept flubbing; **two agent-recovery fixes** (raise the escalation step cap 12→60 via `FLOW_ESCALATE_MAX_STEPS`; strip "credentials/passwords/tokens/API keys" trigger words from the guard prompt that were tripping Claude's own safety filter); Wave 2 got a clean pass on all 6 IG+TT analytics flows; and the camera-roll thumbnail picker was flagged **still brittle** with a planned deterministic **`--media_index=N`**.
 - [2026-06-30] Synced **[[kori]]** again — physical-iPhone install session (VC iPhone 17 Pro). Two new global skills: **[[ios26-scene-lifecycle-launch-crash]]** (iOS 26/27 SDK SIGTRAPs any app that declares a SceneManifest but never adopts UIScene — fixed by adding a SceneDelegate to the stock Expo/RN AppDelegate) and **[[icloud-synced-repo-breaks-codesign]]** (building in iCloud-synced `~/Documents` makes codesign reject `.appex`; use a `~/Library` derivedDataPath). Expanded [[kori-ios-build-run]] with the xcodebuild+devicectl device path.
-- [2026-06-30] Synced **[[iphone-control]]** again — full-flow live-test campaign across all ~30 flows surfaced 3 new durable mechanics (merged into [[social-app-automation-mechanics]] + [[ui-automation-matcher-cascade]]): opening a profile from a *moving feed* defeats even the agent fallback (pause-first + CV avatar, not more escalation); IG insights/analytics need a **Professional/Creator** account; posting needs **pre-existing camera-roll media**.
 
 ## Active Threads
 
 - **iphone-control** — esp32farm rig validated live on "Austin-hal" (iPhone XR, iOS 26.5). Live-test campaign progressing: **Wave 2 passed all 6 IG+TT analytics flows (0 escalated, 0¢)** and both edit-profile flows now PASS via the new `replace_text` primitive. Code-side open work: the **camera-roll thumbnail picker** (post/reel/story) is the top remaining brittle step — implement the deterministic **`--media_index=N`** to skip the LLM selection; the **moving-feed profile-open** flows (tiktok-follow, view-profile ×2) still need pause-first + a **CV avatar** landmark; instagram-comment needs the same region-tap focus fix the search got; a dynamic rail detector remains on the wish-list. Human open items: seed camera-roll media before posting tests, capture per-device CV templates, add a 2nd IG account (login handoff), and **rotate the Anthropic API key that leaked into the chat**.
 - **kori** — now installs & runs on the VC iPhone 17 Pro (Release via `xcodebuild` + `devicectl`, since this Mac's Xcode-beta has no Simulator). A SceneDelegate was added to `AppDelegate.swift` to clear the iOS 26+ launch SIGTRAP. **Open discrepancy:** the earlier sim note claims the AppDelegate was *already* on UIScene, but the device session found it stock-legacy — recheck the committed `AppDelegate.swift`. Onboarding `social`/`notifications` steps still fire native iOS prompts invisible in dev. See [[kori-ios-build-run]].
-- **stratton-internal infra** — staging shares the prod Trigger.dev worker/queue and prod Supabase DB.
+- **stratton-internal** — staging shares the prod Trigger.dev worker/queue and prod Supabase DB. New **Gallery** page (`apps/web/app/(dashboard)/gallery/`) is live and is the first consumer of the batch video resolver in [[video-url-resolution]]. Open follow-ups the author flagged: whether the gallery should also include *posted* videos (`posts` table) or show **multiple cards per task** (every asset revision, not just the best cut) — currently one best-cut card per task with a resolvable video; and it's verified only by typecheck/biome (no live visual render — auth-gated).
 
 ## Key Takeaways
 
@@ -35,3 +35,4 @@ The first thing `wiki-query` reads. Keep it short and current.
 - **iOS 26/27 SDK hard-crashes "scene declared but not adopted."** An app whose Info.plist has a `UIApplicationSceneManifest` but still runs the legacy AppDelegate window lifecycle (stock Expo SDK 54 / RN 0.81) SIGTRAPs at launch (`_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`). Add a real SceneDelegate. → [[ios26-scene-lifecycle-launch-crash]]
 - **Don't build Xcode app-extension projects inside iCloud-synced `~/Documents`** — iCloud stamps `com.apple.FinderInfo` on freshly-built `.appex` and codesign rejects it; it re-stamps mid-build so stripping fails. Point `-derivedDataPath` at `~/Library`. → [[icloud-synced-repo-breaks-codesign]]
 - **Trigger.dev "TTL (10m) expired" = a job routed to the `dev` environment** (no persistent worker), chosen by the `TRIGGER_SECRET_KEY` prefix. → [[trigger-dev-environment-routing]]
+- **"The video" for a stratton-internal task isn't one column.** A produced cut usually lives in the `video_assets` table (public `url` or signed private `storage_path`), not `video_tasks.final_video_url` — so any list/enumeration must resolve through the canonical `apps/web/lib/final-video.ts`, not a single-column query, or it silently drops most videos. Add a **batch resolver next to the single-item one** for list surfaces. → [[video-url-resolution]]

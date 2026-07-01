@@ -14,7 +14,7 @@ base_confidence: 0.7
 lifecycle: draft
 lifecycle_changed: 2026-06-29
 created: 2026-06-29T02:19:37Z
-updated: 2026-06-30T00:57:44Z
+updated: 2026-07-01T00:24:10Z
 ---
 
 # Stratton Internal (mimic)
@@ -30,6 +30,7 @@ Source CWD: `/Users/darius/Documents/Stratton/stratton-internal`.
 - **Background jobs — Trigger.dev** (SDK v4.4.6, project ref `proj_tpqkwtxauprzppsfxqno`). ~63 tasks: intake, posts, QC, canvas runs, voice scraping. The worker is deployed from `cd trigger && npx trigger deploy` (or `./trigger/deploy.sh`). See [[trigger-dev]].
 - **Database — Supabase (Postgres).** Staging **shares the prod Supabase DB** (identical `DATABASE_URL`) — staging is not fully isolated from prod data. ^[extracted]
 - **Media pipeline** — server-side ffmpeg post-processing (`apps/web/lib/video-postproc.ts`) plus a Remotion compositor; the Trigger worker container bundles ffmpeg + Remotion (its build takes a few minutes). External AI deps include Gemini (seen returning transient 503 `UNAVAILABLE`).
+- **Video URL resolution** — a produced video usually lives in the `video_assets` table, **not** `video_tasks.final_video_url`. Resolve any task's playable cut through the canonical `apps/web/lib/final-video.ts` (single `resolveFinalVideoUrl` / batch `resolveFinalVideoUrls`), never a single column. See [[video-url-resolution]].
 
 ## Environment / config wiring
 
@@ -50,5 +51,6 @@ The Trigger.dev environment a job lands in is decided **entirely by the `TRIGGER
 
 ## Operational notes
 
+- **Every dashboard route sits behind Supabase-auth middleware** — unauthenticated requests 302 → `/login`. An agent/preview with no Supabase session can confirm a new route *compiles and redirects*, but **cannot do a full visual render**; headless QA of authed pages needs a real session. Flag this as a verification boundary rather than claiming a page was visually confirmed.
 - The deploy wrapper needs `set -a` before `source .env` so the loaded vars are **exported** to the child deploy script — without it `source .env` sets but doesn't export, and `trigger deploy` gets no key and fails.
 - Iterative cloud-state diagnosis here is expensive — one such session ran ~$100. Inspect the actual Trigger dashboard / Railway state early instead of theorizing from symptoms.

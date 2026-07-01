@@ -5,11 +5,12 @@
   "projects": {
     "stratton-internal": {
       "source_cwd": "/Users/darius/Documents/Stratton/stratton-internal",
-      "last_synced": "2026-06-29T02:19:37Z",
+      "last_synced": "2026-07-01T00:24:10Z",
       "last_commit_synced": null,
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
         "projects/stratton-internal/stratton-internal.md",
+        "projects/stratton-internal/concepts/video-url-resolution.md",
         "skills/trigger-dev-environment-routing.md",
         "skills/ffmpeg-filter-version-compatibility.md",
         "entities/trigger-dev.md"
