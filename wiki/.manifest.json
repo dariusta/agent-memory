@@ -16,7 +16,7 @@
     },
     "stratton-internal": {
       "source_cwd": "/Users/darius/Documents/Stratton/stratton-internal",
-      "last_synced": "2026-07-01T08:30:02Z",
+      "last_synced": "2026-07-01T08:40:00Z",
       "last_commit_synced": null,
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
@@ -38,7 +38,9 @@
         "entities/runpod.md",
         "projects/stratton-internal/concepts/voice-scrape-isolation-pipeline.md",
         "skills/deployed-env-overrides-code-defaults.md",
-        "skills/instrument-before-tuning-a-gate.md"
+        "skills/instrument-before-tuning-a-gate.md",
+        "projects/stratton-internal/concepts/voice-scraping-pipeline.md",
+        "skills/runpod-serverless-cold-start-latency.md"
       ]
     },
     "kori": {
