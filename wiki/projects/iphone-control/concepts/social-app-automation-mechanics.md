@@ -5,7 +5,7 @@ category: concepts
 tags: [instagram, tiktok, ios, automation, computer-vision, ocr, domain/tooling, type/howto]
 sources: [projects/iphone-control]
 summary: >-
-    App-version-specific mechanics learned by driving live IG/TikTok on iOS 26.5 — TikTok's two-tap account switcher, pausing the playing feed before any nav, the moving-feed avatar-tap that even the agent can't recover, IG Reels having no follow/favorite rail, IG insights needing a Professional account, posting flows needing camera-roll media, the replace_text field-edit primitive, the 2026 IG top-left-＋ / STORY-default composer, the count-based probabilistic warmup, keyword→niche search, and smart-comment generation.
+    App-version-specific mechanics learned by driving live IG/TikTok on iOS 26.5 — TikTok's two-tap account switcher, pausing the playing feed before any nav, the moving-feed avatar-tap that even the agent can't recover, IG Reels having no follow/favorite rail, IG insights needing a Professional account, the deterministic --media_index camera-roll picker + the 2026 IG camera-first bottom-drawer composer grid coords, the analytics no-content acceptor, the replace_text field-edit primitive, the count-based probabilistic warmup, keyword→niche search, and smart-comment generation.
 provenance:
   extracted: 0.65
   inferred: 0.3
@@ -14,7 +14,7 @@ base_confidence: 0.64
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T02:05:24Z
-updated: 2026-07-01T00:11:40Z
+updated: 2026-07-01T02:44:30Z
 ---
 
 # Instagram & TikTok automation mechanics (2026 app UIs)
@@ -53,7 +53,11 @@ Instagram's analytics flows (`analytics-post` / `-overview` / `-audience`) and p
 
 **2026 IG composer nav:** create is the **top-left `+`** (not a bottom-nav slot), and the composer now **defaults to STORY** (camera-first) — the post/reel flows do a deterministic POST/Studio-tab tap to switch off the story default. A `--dry_run=true` var discards the draft instead of publishing, so the in-app editor + music path can be verified without posting real content. Opening `wait_for_screen` accept-lists also had to add a `feed_loading` state — the feed sometimes opens still-loading (reel/ad-topped) and the old strict `home_feed`-only check misfired. ^[extracted]
 
-**The camera-roll thumbnail picker is the remaining brittle step.** Even with media seeded, the [[ui-automation-matcher-cascade|LLM agent]] can't reliably tap the *right* thumbnail by description — the grid is a wall of near-identical crops with no stable label to match. The planned fix is a deterministic **`--media_index=N`** var that hard-codes the Nth grid cell (computed tap coordinates) and skips the LLM selection entirely — the same deterministic-over-agent move as [[#Replacing a field's contents (not just focusing it)|replace_text]]. As of Session 6 this is a recommendation, **not yet implemented**. ^[inferred]
+**The camera-roll thumbnail picker was the remaining brittle step — made deterministic via `--media_index=N` (Session 7).** Even with media seeded, the [[ui-automation-matcher-cascade|LLM agent]] can't reliably tap the *right* thumbnail by description — the grid is a wall of near-identical crops with no stable label. `--media_index=N` hard-codes the Nth grid cell (computed tap coords) + a "Next" tap as deterministic pre-steps, so the agent's escalation goal **drops media selection entirely** and only handles editor/music/caption/share — much cheaper and more reliable. Same deterministic-over-agent move as [[#Replacing a field's contents (not just focusing it)|replace_text]]; wired into `instagram-post`/`-reel`/`-story` + `tiktok-post`. ^[extracted]
+
+**The 2026 IG composer is camera-first with the gallery as a *bottom drawer*, and the grid coordinates are non-obvious.** The first `--media_index` cut *guessed* a 3-column full-screen Recents grid (`yf_start 0.43`) and silently mis-tapped into the camera preview area — burning **~$90 of escalation** before anyone noticed. A *guessed* coordinate is worse than none (the coordinate-space twin of the "wrong CV template" rule in [[ui-automation-matcher-cascade]]). Recalibrated live against a screenshot, the real layout is: **4 columns** (`col = idx%4`, `xf = (col*2+1)/8`), first row at **`yf ≈ 0.696`**, row pitch **`≈ 0.116`**, "Next" at **`yf ≈ 0.079`**, and **grid cell 0 is the camera tile** — the first *real* media item is index **1**. Verified live: `instagram-post --media_index=1 --dry_run` deterministically selects the safe blank clip and lands in the in-app editor (screenshot-confirmed toolbar with the music path). Reel/story share the identical composer + coords; TikTok's grid differs (`--media_index_xf`/`--media_index_yf` override coords if the layout shifts). The publish/discard *tail* after media selection is still LLM-driven and remains the brittle part. ^[extracted]
+
+**Analytics/insights flows need a "no content" success-acceptor.** `instagram-analytics-post` fails on an account with **no published posts** ("You'll see insights here once they become available") — the flow navigates correctly, there's simply nothing to open. This is the same shape the `-audience` flow already handles with an `audience_unavailable` acceptor; post-insights wants an equivalent `no_content` success case so an empty-but-correct run isn't scored as a failure. ^[extracted]
 
 ## Count-based probabilistic warmup model
 

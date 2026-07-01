@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Master index of every page in this knowledge wiki, grouped by category. Updated by wiki-update / wiki-capture on every sync.
-updated: 2026-07-01T00:24:10Z
+updated: 2026-07-01T02:44:30Z
 ---
 
 # Wiki Index
@@ -30,7 +30,7 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[behavioral-realism-anti-detection]] — emulating a human across a device fleet: the biggest tell is every device behaving identically + shared egress IP, not swipe geometry; prioritize per-account identity, scheduling, action-mix, aging.
 - [[iphone-control-architecture]] — the esp32farm rig stack (ESP32 BLE-HID → DVT capture → RapidOCR/OpenCV → Flask panel → tsx flow engine), from-scratch runtime setup, and the per-account humanization module map.
 - [[video-url-resolution]] — stratton-internal: a produced video usually lives in the `video_assets` table, not `video_tasks.final_video_url`; resolve any task's playable cut through the canonical `lib/final-video.ts` (single + batch), never a single column.
-- [[social-app-automation-mechanics]] — 2026 IG/TikTok automation specifics: TikTok two-tap account switcher, pause the playing feed before nav (opening a profile from a moving feed defeats even the agent), IG Reels has no follow/favorite rail, IG insights need a Professional account, posting needs camera-roll media (thumbnail picker still brittle → planned --media_index), the replace_text field-edit primitive, 2026 IG top-left-＋/STORY-default composer, count-based warmup, keyword→niche search, smart-comment.
+- [[social-app-automation-mechanics]] — 2026 IG/TikTok automation specifics: TikTok two-tap account switcher, pause the playing feed before nav (opening a profile from a moving feed defeats even the agent), IG Reels has no follow/favorite rail, IG insights need a Professional account, deterministic --media_index camera-roll picker + the 2026 IG camera-first bottom-drawer composer grid coords (4-col, yf 0.696, cell 0 = camera), analytics no-content acceptor, the replace_text field-edit primitive, count-based warmup, keyword→niche search, smart-comment.
 
 ### entities
 
@@ -45,7 +45,7 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[dvt-launch-does-not-wake-display]] — `pymobiledevice3 dvt launch` starts the app but doesn't wake the screen; DVT capture reads a black frame and flows time out. Wake first; disable Auto-Lock.
 - [[ios26-scene-lifecycle-launch-crash]] — building against the iOS 26/27 SDK hard-crashes at launch (SIGTRAP, `_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`) if Info.plist declares a SceneManifest but the app never adopts UIScene (stock Expo SDK 54 / RN 0.81). Fix: add a real SceneDelegate.
 - [[icloud-synced-repo-breaks-codesign]] — building an Xcode project inside iCloud-synced `~/Documents` makes codesign reject `.appex` ("FinderInfo … detritus not allowed"); iCloud re-stamps mid-build so stripping fails. Point derivedDataPath at `~/Library`.
-- [[ui-automation-matcher-cascade]] — robust UI tapping cascade `template → region → OCR → LLM agent`, deterministic-first; a *wrong* CV template is worse than none; mark fragile taps optional; the whole cascade (agent included) assumes a static frame — a moving target needs a pause, not more escalation; give the escalation agent enough steps + a safety-filter-clean guard prompt, and prefer a deterministic primitive (replace_text) over the agent for rote edits.
+- [[ui-automation-matcher-cascade]] — robust UI tapping cascade `template → region → OCR → LLM agent`, deterministic-first; a *wrong* CV template (or guessed coordinate) is worse than none; mark fragile taps optional; the whole cascade (agent included) assumes a static frame — a moving target needs a pause, not more escalation; give the escalation agent enough steps and a test-runner cap ≥ ~500s (both low caps masquerade as matching failures) + a safety-filter-clean guard prompt, and prefer a deterministic primitive (replace_text, --media_index) over the agent for rote sequences.
 
 ### references
 

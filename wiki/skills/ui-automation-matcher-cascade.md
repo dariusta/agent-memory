@@ -5,7 +5,7 @@ category: skills
 tags: [automation, computer-vision, ocr, llm-agent, reliability, domain/tooling, type/pattern]
 sources: [projects/iphone-control]
 summary: >-
-    A reliability pattern for tapping UI elements whose position/label shifts: try the cheapest deterministic matcher first (captured CV template → fractional region anchor → OCR label) and only escalate to an LLM agent as last resort. Mark optional taps so a miss never fails the flow — and never ship a wrong template, since it actively mis-locks. The whole cascade (agent included) assumes a roughly-static frame; a continuously-moving target needs a pause, not more escalation. When you do escalate, give the agent enough steps (a low cap looks like a matching failure) and keep its guard prompt free of trigger words that trip the model's safety filter; and prefer a deterministic primitive over the agent for rote edits (see replace_text).
+    A reliability pattern for tapping UI elements whose position/label shifts: try the cheapest deterministic matcher first (captured CV template → fractional region anchor → OCR label) and only escalate to an LLM agent as last resort. Mark optional taps so a miss never fails the flow — and never ship a wrong template or a guessed hard-coded coordinate, since either actively mis-locks. The whole cascade (agent included) assumes a roughly-static frame; a continuously-moving target needs a pause, not more escalation. When you do escalate, give the agent enough steps (a low step cap looks like a matching failure) and don't let the test runner's time cap kill a working escalation (a low runner cap also looks like a failure); keep its guard prompt free of trigger words that trip the model's safety filter; and prefer a deterministic primitive over the agent for rote sequences (replace_text for field edits, --media_index for the media grid — calibrated to the live layout).
 provenance:
   extracted: 0.55
   inferred: 0.4
@@ -14,7 +14,7 @@ base_confidence: 0.62
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T02:05:24Z
-updated: 2026-07-01T00:11:40Z
+updated: 2026-07-01T02:44:30Z
 ---
 
 # Deterministic-first UI automation: the matcher cascade
@@ -49,9 +49,12 @@ When you *do* fall through to the agent, two non-obvious things kept it from fin
 
 1. **Give it enough steps.** The agent was silently bailing mid-recovery because its per-flow step cap was too low (12). A multi-step recovery (dismiss a popup → re-find the landmark → tap) can easily need more than a dozen tool calls. Session 6 raised it to **60** (overridable via `FLOW_ESCALATE_MAX_STEPS`). A recovery agent that hits its cap looks like a *matching* failure but is really a *budget* failure — inspect the step count before blaming the matcher.
 2. **Watch your own guard prompt's vocabulary.** The flow's internal safety-check prompt literally enumerated *"credentials / passwords / tokens / API keys"* — and that word list **tripped Claude's own safety filter**, making the agent refuse/bail. Rephrasing to the same intent *without* the trigger words cleared it. Lesson: a meta/guard sub-prompt that names sensitive categories can get caught by the model's safety layer; describe the constraint behaviorally instead of listing hot-button nouns. ^[extracted]
+3. **Don't let the *test runner's* time cap kill a working escalation.** Escalation-heavy recoveries can run **>400s**; a live test harness that caps a flow at 250–350s kills it mid-recovery before it emits a RESULT, and the run reads as a failure. That's a *runner-budget* failure, not a matching or agent failure — set the cap to **≥ ~500s** (or don't cap escalation flows at all) before concluding a flow is broken. Same masquerade as the step cap above, one layer out. ^[extracted]
 
 ## Prefer a deterministic primitive over the agent for fiddly edits
 
 The agent is the last resort for *locating* a shifting element. For a **fixed mechanical sequence** the LLM keeps flubbing — e.g. clearing and retyping a text field — the better move isn't a smarter agent prompt, it's a new deterministic harness primitive. [[social-app-automation-mechanics#Replacing a field's contents (not just focusing it)|`replace_text`]] (tap → long-press → OCR "Select All" or backspace ×N → type) replaced repeated agent failures on edit-profile flows with one reliable step. Same philosophy as the cascade: escalate to the LLM only for genuine ambiguity, never for a rote sequence. ^[extracted]
+
+A second instance: the **camera-roll thumbnail picker**. The IG/TikTok media grid is a wall of near-identical crops with no stable label, so the agent can't reliably pick the *right* one by description. The fix was a deterministic **`--media_index=N`** var that computes the Nth grid cell's coordinates and taps it (plus "Next") as pre-steps, removing media selection from the agent's goal entirely. **But a deterministic coordinate is only as good as its calibration** — the first cut *guessed* a 3-column full-screen grid and silently mis-tapped into the 2026 IG camera-first composer's preview area, burning **~$90** of escalation before it was caught. This is the coordinate-space twin of rule 1 above (*a wrong template is worse than none*): a **wrong** hard-coded coordinate mis-taps confidently, worse than having none. Calibrate against a live screenshot of the actual layout (the real grid turned out to be 4 columns starting at `yf 0.696`, with cell 0 the camera tile). See [[social-app-automation-mechanics#Posting flows need pre-existing camera-roll media|the composer coords]]. ^[extracted]
 
 Related: pausing a playing video before tapping (so a closed-loop pointer can lock) is a complementary trick — see [[social-app-automation-mechanics]].
