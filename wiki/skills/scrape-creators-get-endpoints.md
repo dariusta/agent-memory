@@ -7,14 +7,14 @@ sources: [projects/stratton-internal]
 summary: >-
     A bare "Scrape Creators returned 404: Not Found" usually means a call hit a GET-only endpoint with POST + JSON body; every working call uses GET with a ?url= query param.
 provenance:
-  extracted: 0.75
-  inferred: 0.2
+  extracted: 0.8
+  inferred: 0.15
   ambiguous: 0.05
-base_confidence: 0.7
+base_confidence: 0.74
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T00:57:44Z
-updated: 2026-06-30T00:57:44Z
+updated: 2026-07-01T08:30:00Z
 ---
 
 # Scrape Creators API: all post-fetch endpoints are GET ?url= (POST+JSON 404s)
@@ -37,7 +37,8 @@ So a sibling function was already calling the exact endpoint correctly; `getInst
 
 ## The diagnostic tell
 
-- The stored error is the literal `Scrape Creators returned 404: Not Found` with no body. A genuine coverage gap or a bad URL tends to return a JSON error or a different status. ^[inferred]
+- **The 404 body tells you *which* 404 it is** (confirmed empirically against the live API with a real key): a genuine missing/deleted post returns a JSON body `{"success":false,…,"message":"Post not found"}`, whereas a **wrong-method / wrong-path** 404 returns plain-text **`Not Found`** with no JSON. So a stored `Scrape Creators returned 404: Not Found` (plain text) is a wrong-method/gateway 404, **not** a coverage gap. ^[extracted]
+- **Prove the posts are fine before touching them:** re-fetch one "failed" URL with `GET /v1/instagram/post?url=…` and the prod key. If it returns **200 with full data**, the account isn't banned and the post isn't deleted — the request shape (or the *deployed* code) is wrong. In this incident three "404'd" reels (`DaMcndKga-R`, `DaLsNdaCctx`, `DaLQLdKjaVA`) all returned 200 live. ^[extracted]
 - **Grep the integration for the odd one out:** if every call uses GET `?url=` and one uses POST + JSON, the POST one is the bug. Don't theorize about the vendor — diff your own callsites against each other. ^[inferred]
 - Confirm against the vendor docs (the IG-post endpoint is documented as `GET /v1/instagram/post?url=…`) and, if you store scrape errors, read the actual prod DB rows. ^[extracted]
 
@@ -62,5 +63,11 @@ So one wrong HTTP method 404'd all three. The account-feed **fallback** couldn't
 ## Why this recurs
 
 This was the **same bug class** as a TikTok post-fetch 404 fixed the day before (2026-06-28) — a migration to GET `?url=` that swept most callsites but left one POST+JSON function behind. When you migrate a vendor client's call convention, grep for *every* callsite of the old shape; a "skipped"/error-swallowing fallback can hide the stragglers for a long time. ^[inferred]
+
+## The second way it recurs: the fix is merged but not deployed
+
+The identical `Scrape Creators returned 404: Not Found` reappeared a day later even though the code was already GET-correct. The scrape runs inside the **Trigger.dev `scrape-post` worker**, which executes whatever code was frozen at its last `trigger deploy`. The GET fix — commit `37444c6c2` *"fix IG post endpoint to GET"* (`method: 'POST'` → `GET ?url=`), landed **2026-06-30 01:20 UTC** — was merged, but the live prod worker was **`v20260629.1`, deployed 2026-06-29 02:15 UTC — ~23 h *before* the fix**, so it still POSTed and 404'd every IG scrape. ^[extracted]
+
+Diagnostic: when a fix is merged but the symptom persists, **compare the deployed Trigger.dev worker's version/date against the fix commit's date**. A plain web-app redeploy does **not** update the worker. Remedy is a worker deploy (`source .env && ./trigger/deploy.sh`), not a code change; already-failed rows re-scrape on the next **Refresh**. See [[trigger-dev]]. ^[extracted]
 
 See [[scrape-creators]] and the project context in [[stratton-internal]].

@@ -14,7 +14,7 @@ base_confidence: 0.68
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T02:05:24Z
-updated: 2026-06-30T02:05:24Z
+updated: 2026-07-01T08:31:02Z
 ---
 
 # iphone-control (esp32farm)
@@ -37,6 +37,7 @@ The reference device this session ran on: **"Austin-hal"** — iPhone XR, UDID `
 
 - [[iphone-control-architecture]] — the full rig stack, the from-scratch runtime setup (venv/deps, RapidOCR swap, `server.py` fixes, panel/flow launch), and the per-account humanization module map.
 - [[social-app-automation-mechanics]] — the app-version-specific mechanics learned live: TikTok account-switch two-tap sequence, pause-the-playing-video before navigating, IG Reels rail has no follow/favorite, count-based probabilistic warmup model, keyword→niche search prelude, and thread-aware "smart comment" generation.
+- [[automated-login-2fa]] — the deterministic login/2FA subsystem: operator-opt-in gating (`FLOW_ALLOW_PASSWORD_LOGIN`), execution-time TOTP + email-OTP resolution, async `build()`, IMAP OTP fetch with a recency filter, IG's chained new-device email gate, and `add_account` mode.
 
 ## Reusable lessons that generalize (global pages)
 
@@ -45,6 +46,6 @@ The reference device this session ran on: **"Austin-hal"** — iPhone XR, UDID `
 - [[ui-automation-matcher-cascade]] — the deterministic-first `template → region → OCR → agent` matcher cascade, and why a *wrong* CV template is worse than none.
 - [[behavioral-realism-anti-detection]] — the highest-leverage anti-detection work is behavioral/identity modeling (and per-account egress), not swipe-curve micro-realism.
 
-## Hard safety rule
+## Login handling (operator-opt-in — the old "never login" rule was reversed)
 
-The rig (and the agent) **never types a password, submits a login, or enters a 2FA code** — even when credentials are provided in chat. This is why the repo has **no automated login/add-account flow**; `switch-account` assumes accounts are already logged in. Credential steps are handed off to the human. ^[extracted]
+**Earlier this was an absolute rule** ("the rig never types a password, submits a login, or enters a 2FA code — no automated login flow exists"). **That rule is gone.** The rig now has deterministic `instagram-login` / `tiktok-login` flows and an `add_account` mode, gated behind an **operator opt-in**: they refuse to start without `FLOW_ALLOW_PASSWORD_LOGIN=1`, and secrets come from **env vars, never chat**. Passwords/2FA codes are still never typed with the humanizer's typo jitter. Full mechanics — execution-time TOTP/OTP resolution, IMAP OTP with a recency filter, IG's chained email gate — are in [[automated-login-2fa]] (generalizable lessons: [[automating-2fa-code-entry]]). ^[extracted]

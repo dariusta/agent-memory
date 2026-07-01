@@ -27,5 +27,6 @@ Third-party HTTP API that scrapes social-media posts and accounts (Instagram, Ti
 - The same `/v1/instagram/post` endpoint backs both a "post details" fetch (`getInstagramPost`) and a "post video" fetch (`getPostVideo`) — both are GET. ^[extracted]
 - Account/feed scrapes need a **handle**; a raw `/reel/…` or `/p/…` URL carries none, so a feed-based fallback can't resolve a bare post URL. ^[extracted]
 - Auth is a server-side API key, so any fix to the client is server-side and **needs a deploy** to take effect (and a separate `trigger deploy` for the Trigger.dev job that calls it). ^[inferred]
+- **Voice harvesting is TikTok-only.** `searchTikTokKeyword()` hits `/v1/tiktok/search/keyword` (deduped by aweme id) for discovery, and `getPostVideo()` downloads via `/v2/tiktok/video?url=…&download_media=true` (a **permanent stored** URL, not CDN-ephemeral). There is **no YouTube audio-download path** — only `getYouTubeProfile` (profile metadata). See [[voice-scrape-isolation-pipeline]]. ^[extracted]
 
 Used by [[stratton-internal]].

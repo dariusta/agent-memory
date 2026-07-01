@@ -14,7 +14,7 @@ base_confidence: 0.72
 lifecycle: draft
 lifecycle_changed: 2026-06-29
 created: 2026-06-29T02:19:37Z
-updated: 2026-06-29T02:19:37Z
+updated: 2026-07-01T08:30:00Z
 ---
 
 # Trigger.dev
@@ -26,6 +26,7 @@ Background-job / durable-task orchestration platform. Tasks are defined with `ta
 - **Environments:** `dev`, plus deployed envs (staging/prod). The target env is chosen by the **`TRIGGER_SECRET_KEY` prefix** (`tr_dev_…` vs `tr_prod_…`) on the calling client when no explicit `configure()` is passed.
 - **Dev env has a built-in default 10-minute queue-TTL**; deployed envs do not. The dev env only executes runs while a `npx trigger dev` tunnel is connected. This is the root of the "Run expired because the TTL (10m) was reached" failure — see [[trigger-dev-environment-routing]].
 - **Deploying:** `npx trigger deploy` (add `--env staging` for a staging worker). Code changes to a task only take effect after a worker redeploy; the live worker can be weeks stale. The deploy builds a container (slow if it bundles ffmpeg/Remotion).
+- **Deploy lag is a root-cause *class*, not a footnote.** A "fix committed & merged but symptom persists" bug is often the worker still running pre-fix code: the deployed worker is frozen at its last `trigger deploy`, and a **web-app redeploy does not touch it**. Diagnose by comparing the **deployed worker version/date** (e.g. prod `v20260629.1` @ 2026-06-29 02:15 UTC) against the **fix commit's date** — if the worker predates the commit, redeploy the worker. This is how a merged Scrape-Creators GET fix still 404'd every Instagram scrape for a day → see [[scrape-creators-get-endpoints]].
 - `ttl` is a valid option both at trigger time (per-run) and on the `task()` definition (task-level default) — but per-run / dev defaults take precedence, so a task-level `ttl` can't override the dev 10m default.
 - A run that expires shows `Duration: 0ms` and a `PARTIAL`/expired status in the dashboard — it never started.
 

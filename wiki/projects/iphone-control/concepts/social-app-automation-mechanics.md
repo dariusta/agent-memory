@@ -14,7 +14,7 @@ base_confidence: 0.64
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T02:05:24Z
-updated: 2026-07-01T02:44:30Z
+updated: 2026-07-01T08:31:02Z
 ---
 
 # Instagram & TikTok automation mechanics (2026 app UIs)
@@ -72,6 +72,8 @@ Warmups were rewritten from time-based (`minutes` + fixed `like_every`) to **cou
 
 A `keyword`/`keywords` var swaps the generic feed for a search-to-niche prelude: **pause → open Search (CV) → focus the search BAR by position → type keyword → submit (`press` Enter) → land on the niche results → run the engagement loop there**. Validated live on TikTok ("home workout" → niche fitness results). **Key fix:** the field needed the search *bar* tapped by position to focus it — an OCR match on the word "Search" does **not** focus the input. IG mirrors this. ^[extracted]
 
+**IG Search is bottom-nav slot 3, not slot 1.** In `instagram-warmup`, the navtab resolver runs *before* the candidate list, so keyword (niche) mode was tapping **slot 1 (Reels)** instead of the **Search magnifier at slot 3** — niche warmup opened Reels and never searched. Plain FYP mode correctly taps slot 1; a dropped BLE-HID tap there left it on Home ("only scrolled the homepage"), so a **verify-retry branch** re-taps and waits for the Reels feed. Verified live: FYP + basketball-niche both land and engage. ^[extracted]
+
 ## Replacing a field's contents (not just focusing it)
 
 Focusing a field is one problem (tap the *bar* by position, above); **replacing its existing text is a separate, harder one**. A plain `type` appends, and handing "clear this field then type X" to the LLM agent failed repeatedly — iOS's contextual "Select All / Cut / Paste" menu is timing- and gesture-dependent, so the agent couldn't reliably surface and use it. Session 6 added a deterministic **`replace_text` harness step** (a new `FlowStep` kind + `AxLike` `tap`/`hold`) that does it natively: ^[extracted]
@@ -95,3 +97,7 @@ This is the [[ui-automation-matcher-cascade|deterministic-over-agent]] principle
 
 - Every fragile tap uses [[ui-automation-matcher-cascade]] (`template → region → OCR → agent`).
 - `successOptional` flag — engagement flows (warmup, like-feed) that complete all steps but end on a reel/ad are no longer falsely marked failed (the old success heuristic looked for a specific anchor screen like "Your story" and failed even when the work was done). Confirmation flows (switch-account) keep strict checking. ^[extracted]
+- **Deterministic 3-pass popup dismisser** — rewritten to run three ordered passes (targeted-trigger escape → safe text-button → top-right X) with richer pattern triggers (service `+`, passkey, profile-setup nag, network banners). Result: **most blocking popups no longer need an LLM**. This is the "deterministic OCR/CV popup fallback, agent only for the truly-stuck" model the user asked for. ^[extracted]
+- **Permissive OCR handle ladder** — iOS-OCR truncates long usernames (`user6275…`), so `switch-account` matching walks a ladder: full handle → `@handle` → 4-char prefix → last-4-chars, and the escalation prompt accepts leading/trailing-prefix matches. Same idea for collapsed word boundaries (`becomeavailable.`) in the `no_content` acceptor. ^[extracted]
+- **BLE-HID taps drop silently** — the transport itself loses events, so a nominally-correct tap can leave the wrong screen. Wrap fragile nav taps in **branch-retries + settle dwells** and verify the landing before proceeding (the FYP "only scrolled Home" fix above is one instance). ^[extracted]
+- **Outer `FLOW_RUN_MAX_MS` budget** (default ~600s) — the runner surfaces a clean `flow_budget_exceeded` instead of being killed mid-flight by an external test runner; complements the ≥500s runner-cap lesson in [[ui-automation-matcher-cascade]]. The per-escalation step cap default was also raised 12 → 80. ^[extracted]
