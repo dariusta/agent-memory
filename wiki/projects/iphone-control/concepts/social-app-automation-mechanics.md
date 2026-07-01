@@ -5,7 +5,7 @@ category: concepts
 tags: [instagram, tiktok, ios, automation, computer-vision, ocr, domain/tooling, type/howto]
 sources: [projects/iphone-control]
 summary: >-
-    App-version-specific mechanics learned by driving live IG/TikTok on iOS 26.5 — TikTok's two-tap account switcher, pausing the playing feed before any nav, the moving-feed avatar-tap that even the agent can't recover, IG Reels having no follow/favorite rail, IG insights needing a Professional account, posting flows needing camera-roll media, the count-based probabilistic warmup, keyword→niche search, and smart-comment generation.
+    App-version-specific mechanics learned by driving live IG/TikTok on iOS 26.5 — TikTok's two-tap account switcher, pausing the playing feed before any nav, the moving-feed avatar-tap that even the agent can't recover, IG Reels having no follow/favorite rail, IG insights needing a Professional account, posting flows needing camera-roll media, the replace_text field-edit primitive, the 2026 IG top-left-＋ / STORY-default composer, the count-based probabilistic warmup, keyword→niche search, and smart-comment generation.
 provenance:
   extracted: 0.65
   inferred: 0.3
@@ -14,7 +14,7 @@ base_confidence: 0.64
 lifecycle: draft
 lifecycle_changed: 2026-06-30
 created: 2026-06-30T02:05:24Z
-updated: 2026-06-30T03:48:28Z
+updated: 2026-07-01T00:11:40Z
 ---
 
 # Instagram & TikTok automation mechanics (2026 app UIs)
@@ -51,6 +51,10 @@ Instagram's analytics flows (`analytics-post` / `-overview` / `-audience`) and p
 
 `post` / `story` / `reel` can't fabricate content — the composer has to **pick an existing photo/video from the camera roll**. If the device has no media, these flows stall regardless of how good the automation is; that's an environment prerequisite, not an automation bug. Seed the camera roll before testing posting. ^[extracted]
 
+**2026 IG composer nav:** create is the **top-left `+`** (not a bottom-nav slot), and the composer now **defaults to STORY** (camera-first) — the post/reel flows do a deterministic POST/Studio-tab tap to switch off the story default. A `--dry_run=true` var discards the draft instead of publishing, so the in-app editor + music path can be verified without posting real content. Opening `wait_for_screen` accept-lists also had to add a `feed_loading` state — the feed sometimes opens still-loading (reel/ad-topped) and the old strict `home_feed`-only check misfired. ^[extracted]
+
+**The camera-roll thumbnail picker is the remaining brittle step.** Even with media seeded, the [[ui-automation-matcher-cascade|LLM agent]] can't reliably tap the *right* thumbnail by description — the grid is a wall of near-identical crops with no stable label to match. The planned fix is a deterministic **`--media_index=N`** var that hard-codes the Nth grid cell (computed tap coordinates) and skips the LLM selection entirely — the same deterministic-over-agent move as [[#Replacing a field's contents (not just focusing it)|replace_text]]. As of Session 6 this is a recommendation, **not yet implemented**. ^[inferred]
+
 ## Count-based probabilistic warmup model
 
 Warmups were rewritten from time-based (`minutes` + fixed `like_every`) to **count-based + fully randomized**, matching a "Feed Warmr" panel design: ^[extracted]
@@ -63,6 +67,21 @@ Warmups were rewritten from time-based (`minutes` + fixed `like_every`) to **cou
 ## Keyword → niche search prelude
 
 A `keyword`/`keywords` var swaps the generic feed for a search-to-niche prelude: **pause → open Search (CV) → focus the search BAR by position → type keyword → submit (`press` Enter) → land on the niche results → run the engagement loop there**. Validated live on TikTok ("home workout" → niche fitness results). **Key fix:** the field needed the search *bar* tapped by position to focus it — an OCR match on the word "Search" does **not** focus the input. IG mirrors this. ^[extracted]
+
+## Replacing a field's contents (not just focusing it)
+
+Focusing a field is one problem (tap the *bar* by position, above); **replacing its existing text is a separate, harder one**. A plain `type` appends, and handing "clear this field then type X" to the LLM agent failed repeatedly — iOS's contextual "Select All / Cut / Paste" menu is timing- and gesture-dependent, so the agent couldn't reliably surface and use it. Session 6 added a deterministic **`replace_text` harness step** (a new `FlowStep` kind + `AxLike` `tap`/`hold`) that does it natively: ^[extracted]
+
+```
+tap field → long-press ~700ms (surfaces the iOS edit menu) → OCR-scan for "Select All"
+  → tap it if found, else brute-force backspace ×30 → type the new value
+```
+
+- Each action is awaited so the screen settles between steps; the pointer never has to track a cursor afterward.
+- The **30 backspaces** are a deliberate over-shoot — IG name/bio fields cap around ~80 chars and 30 covers any realistic current content when "Select All" isn't OCR-visible.
+- `describe`/`label` are for logs only; `x`/`y` is the field, `text` the replacement.
+
+This is the [[ui-automation-matcher-cascade|deterministic-over-agent]] principle applied to *editing* rather than *locating*: a fiddly mechanical sequence the LLM keeps flubbing becomes a single reliable primitive. Validated live — `instagram-edit-profile` and `tiktok-edit-profile` both PASS (name + bio edited and saved) using `replace_text` + `successOptional: true`. ^[extracted]
 
 ## Thread-aware "smart comment"
 
