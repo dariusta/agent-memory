@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Master index of every page in this knowledge wiki, grouped by category. Updated by wiki-update / wiki-capture on every sync.
-updated: 2026-07-01T02:44:30Z
+updated: 2026-07-01T04:22:28Z
 ---
 
 # Wiki Index
@@ -46,6 +46,8 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[ios26-scene-lifecycle-launch-crash]] — building against the iOS 26/27 SDK hard-crashes at launch (SIGTRAP, `_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`) if Info.plist declares a SceneManifest but the app never adopts UIScene (stock Expo SDK 54 / RN 0.81). Fix: add a real SceneDelegate.
 - [[icloud-synced-repo-breaks-codesign]] — building an Xcode project inside iCloud-synced `~/Documents` makes codesign reject `.appex` ("FinderInfo … detritus not allowed"); iCloud re-stamps mid-build so stripping fails. Point derivedDataPath at `~/Library`.
 - [[ui-automation-matcher-cascade]] — robust UI tapping cascade `template → region → OCR → LLM agent`, deterministic-first; a *wrong* CV template (or guessed coordinate) is worse than none; mark fragile taps optional; the whole cascade (agent included) assumes a static frame — a moving target needs a pause, not more escalation; give the escalation agent enough steps and a test-runner cap ≥ ~500s (both low caps masquerade as matching failures) + a safety-filter-clean guard prompt, and prefer a deterministic primitive (replace_text, --media_index) over the agent for rote sequences.
+- [[opencode-transcript-storage]] — opencode 1.17.x keeps all session messages in a SQLite DB (`opencode.db`), not per-session JSON files, and has no export CLI; reconstruct a transcript by joining `message` + `part` on `session_id`. Plus the plugin-loads-from-a-different-config-dir gotcha.
+- [[claude-headless-p-hooks-dont-fire]] — a headless `claude -p` run did not fire the claude-obsidian plugin's PostToolUse auto-commit hook; wrap-script must perform any needed side effect (commit/format) itself and verify the end-state directly.
 
 ### references
 
@@ -57,6 +59,7 @@ _(none yet)_
 
 ### projects
 
+- [[agent-memory-wiki]] — this repo: the cross-agent auto-distill memory system; every coding agent (Claude/Codex/opencode/pi/Gemini) funnels ending/compacting sessions through `bin/wiki-distill.sh` → headless `claude -p` → `wiki-update` skill → self-commit. Design reasoning + gotchas; wiring in `docs/agent-hooks.md`.
 - [[stratton-internal]] — Next.js 15 / Railway app generating AI UGC video ads; Trigger.dev background jobs; staging shares the prod Supabase DB.
 - [[kori]] — React Native / Expo iOS app for learning Korean ("Korean Passport"); Firebase + Superwall; hybrid Expo Router + in-component tab navigation. Sibling Stratton project.
 - [[iphone-control]] — physical-iPhone automation farm (esp32farm): ESP32 BLE-HID + DVT capture + RapidOCR/CV vision, running humanized Instagram/TikTok warmup flows with deterministic-first interactions and an LLM agent fallback.

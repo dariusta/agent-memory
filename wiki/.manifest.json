@@ -3,6 +3,17 @@
   "vault_path": "/Users/darius/Documents/agents",
   "initialized": "2026-06-28T12:57:09Z",
   "projects": {
+    "agent-memory-wiki": {
+      "source_cwd": "/Users/darius/Documents/agents",
+      "last_synced": "2026-07-01T04:22:28Z",
+      "last_commit_synced": "b0c73d0",
+      "sync_source": "session-transcript-distill",
+      "pages_in_vault": [
+        "projects/agent-memory-wiki/agent-memory-wiki.md",
+        "skills/opencode-transcript-storage.md",
+        "skills/claude-headless-p-hooks-dont-fire.md"
+      ]
+    },
     "stratton-internal": {
       "source_cwd": "/Users/darius/Documents/Stratton/stratton-internal",
       "last_synced": "2026-07-01T00:24:10Z",
