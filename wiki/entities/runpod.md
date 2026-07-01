@@ -31,5 +31,8 @@ Serverless **GPU compute** host. In [[stratton-internal]] it runs the ML workers
 ## Related
 
 - [[voice-isolation-pipeline]] — the best-documented RunPod worker; VoxCPM reference-clip cleaner.
-- [[runpod-serverless-env-vs-image]] — the env-vs-image deploy gotcha.
+- [[voice-scrape-isolation-pipeline]] — the acceptance-gate / yield view of that same worker.
+- [[runpod-serverless-env-vs-image]] — env change is live, code change needs an image rebuild.
+- [[deployed-env-overrides-code-defaults]] — the live endpoint env can silently differ from code defaults.
+- [[runpod-serverless-cold-start-latency]] — slow interactive GPU features are usually cold starts, not compute (`idleTimeout` / `min`=0 / `max` levers).
 - [[trigger-dev]] — the job platform whose tasks call these endpoints.

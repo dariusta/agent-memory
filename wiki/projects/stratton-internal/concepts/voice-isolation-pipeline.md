@@ -21,6 +21,8 @@ updated: 2026-07-01T08:30:02Z
 
 `services/voice-isolation/` is a **RunPod serverless GPU worker** (endpoint `8oy0pq82h9m2tx`) that turns a messy scraped UGC clip (TikTok / Instagram) into **one clean single-speaker reference sample** for **VoxCPM** voice cloning. It's the back half of the character **voice-scrape** flow: scrape real creators matching a character → isolate the cleanest clip → save to the voice library. Called from the Trigger job `trigger/jobs/isolate-character-voice.ts` via `isolateVoice()` in `@stratton/integrations` (TS wrapper `packages/integrations/src/voice-isolation.ts`; the Python pipeline is `services/voice-isolation/pipeline.py` + `handler.py`). See [[runpod]], [[stratton-internal]].
 
+> **Sibling page:** [[voice-scrape-isolation-pipeline]] covers the *front* of this feature — TikTok discovery, download, and the strict **acceptance gate / yield** problem (why a scrape returns *zero* clips). **This page covers the other half: how the one clip you do get is (or isn't) cleaned**, and the deliberate noise-vs-authenticity tradeoff behind it.
+
 ## Pipeline stages (order matters)
 
 ```
@@ -51,9 +53,15 @@ The pipeline was tuned to **preserve** the "recorded on an iPhone" character, be
 
 The lesson generalizes: **for voice cloning, the reference's noise floor is a product decision, not just a quality metric** — a "cleaner" reference can produce a *worse* (less natural) clone. Expose it as a dial, don't hardcode "cleanest".
 
-## Tunable env vars (set on the RunPod endpoint)
+## Enhance/output env vars
 
-`VI_ENHANCE_MODE`, `VI_MAX_MUSIC_RESIDUE` (`0.10`), `VI_MIN_SNR_DB` (`9`), `VI_MIN_SPEAKER_PURITY` (`0.92`), `VI_MAX_OTHER_SPEAKER_SEC` (`0.2`), `VI_MIN_WINDOW_SEC` (`5`), `VI_MAX_WINDOW_SEC` (`15`), `VI_RAW_PASSTHROUGH_MAX_RESIDUE` (`0.02`), plus `HF_TOKEN` (gated pyannote weights). These live on the endpoint env and can be flipped live via the RunPod API/MCP without a rebuild. ^[extracted]
+The **acceptance-gate** thresholds (`VI_MIN_SPEAKER_PURITY`, `VI_MAX_OTHER_SPEAKER_SEC`, `VI_MIN_WINDOW_SEC`, `VI_MIN_SNR_DB`, `VI_MAX_MUSIC_RESIDUE`) and their code-default-vs-live-endpoint drift are tabulated in [[voice-scrape-isolation-pipeline]]. The knobs that govern **output cleaning** (this page's focus) are:
+
+- `VI_ENHANCE_MODE` — `off` | `light` (50/50 dry-wet) | `full` (studio denoise). Default flipped `off → full` on 2026-07-01.
+- `VI_RAW_PASSTHROUGH_MAX_RESIDUE` (`0.02`) — below this music residue, output the raw window instead of the Demucs stem.
+- plus `HF_TOKEN` (gated pyannote weights).
+
+All live on the endpoint env and flip live via the RunPod API/MCP without a rebuild — but see the deploy caveat below. ^[extracted]
 
 ## 2026-07-01 change — full denoise ("just her voice")
 

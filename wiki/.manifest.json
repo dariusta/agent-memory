@@ -16,17 +16,23 @@
     },
     "stratton-internal": {
       "source_cwd": "/Users/darius/Documents/Stratton/stratton-internal",
-      "last_synced": "2026-07-01T08:30:00Z",
+      "last_synced": "2026-07-01T08:30:02Z",
       "last_commit_synced": null,
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
         "projects/stratton-internal/stratton-internal.md",
         "projects/stratton-internal/concepts/video-url-resolution.md",
+        "skills/single-candidate-bypasses-quality-gate.md",
+        "projects/stratton-internal/concepts/build-agent-prompt-references.md",
+        "projects/stratton-internal/concepts/voice-isolation-pipeline.md",
+        "skills/ai-video-model-prompt-discipline.md",
         "skills/trigger-dev-environment-routing.md",
         "skills/ffmpeg-filter-version-compatibility.md",
         "skills/scrape-creators-get-endpoints.md",
+        "skills/runpod-serverless-env-vs-image.md",
         "entities/trigger-dev.md",
-        "entities/scrape-creators.md"
+        "entities/scrape-creators.md",
+        "entities/runpod.md"
       ]
     },
     "kori": {
@@ -45,16 +51,18 @@
     },
     "iphone-control": {
       "source_cwd": "/Users/darius/Documents/Personal/iphone-control",
-      "last_synced": "2026-07-01T02:44:30Z",
-      "last_commit_synced": "eb41493",
+      "last_synced": "2026-07-01T08:31:02Z",
+      "last_commit_synced": "bb49f66",
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
         "projects/iphone-control/iphone-control.md",
         "projects/iphone-control/concepts/iphone-control-architecture.md",
         "projects/iphone-control/concepts/social-app-automation-mechanics.md",
+        "projects/iphone-control/concepts/automated-login-2fa.md",
         "skills/macos-vision-ocr-models-missing.md",
         "skills/dvt-launch-does-not-wake-display.md",
         "skills/ui-automation-matcher-cascade.md",
+        "skills/automating-2fa-code-entry.md",
         "concepts/behavioral-realism-anti-detection.md"
       ]
     }

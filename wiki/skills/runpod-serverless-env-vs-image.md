@@ -39,3 +39,5 @@ You change behavior that is *partly* env-gated and *partly* code, flip the env v
 ## Why it's confusing
 
 This mirrors the same class of bug as [[trigger-dev-environment-routing]] (config vs code) and [[scrape-creators-get-endpoints]] (one straggler call site): the *symptom* looks like a code bug, but a **deploy/plumbing seam** — here, env-surface vs image-surface — is where the fix actually has to land. Verify the runtime end-state (image tag), don't assume the source you edited is what's executing. See [[runpod]].
+
+**Close sibling:** [[deployed-env-overrides-code-defaults]] is the *read* twin of this *deploy* lesson — the live env can silently differ from the code's default constants, so reading the source misleads you about runtime. Same root cause (env-surface ≠ code-surface), opposite direction: one bites when you *read* config, this one bites when you *ship* code.

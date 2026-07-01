@@ -19,7 +19,7 @@ updated: 2026-07-01T08:30:08Z
 
 # A Single Candidate Should Not Skip the Match/Quality Gate
 
-Two related traps, both seen live in [[stratton-internal]]'s [[voice-casting-pipeline]] (a woman's voice got cast on a Black male founder), both generalizable to any "search → filter → link" flow.
+Two related traps, both seen live in [[stratton-internal]]'s [[voice-scraping-pipeline]] (a woman's voice got cast on a Black male founder), both generalizable to any "search → filter → link" flow.
 
 ## Trap 1 — the "only rank when there's a choice" short-circuit
 
