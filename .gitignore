@@ -15,3 +15,4 @@
 .vault-meta/chunks/
 .vault-meta/bm25/
 .vault-meta/transport.json
+.vault-meta/distilled/
