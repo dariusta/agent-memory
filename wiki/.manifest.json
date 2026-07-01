@@ -21,6 +21,9 @@
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
         "projects/stratton-internal/stratton-internal.md",
+        "projects/stratton-internal/concepts/model-catalog-fanout.md",
+        "entities/muapi.md",
+        "skills/vitest-stale-worktree-pollution.md",
         "projects/stratton-internal/concepts/video-url-resolution.md",
         "skills/single-candidate-bypasses-quality-gate.md",
         "projects/stratton-internal/concepts/build-agent-prompt-references.md",
@@ -32,7 +35,10 @@
         "skills/runpod-serverless-env-vs-image.md",
         "entities/trigger-dev.md",
         "entities/scrape-creators.md",
-        "entities/runpod.md"
+        "entities/runpod.md",
+        "projects/stratton-internal/concepts/voice-scrape-isolation-pipeline.md",
+        "skills/deployed-env-overrides-code-defaults.md",
+        "skills/instrument-before-tuning-a-gate.md"
       ]
     },
     "kori": {
