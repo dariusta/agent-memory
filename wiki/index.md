@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Master index of every page in this knowledge wiki, grouped by category. Updated by wiki-update / wiki-capture on every sync.
-updated: 2026-07-01T04:22:28Z
+updated: 2026-07-01T05:31:09Z
 ---
 
 # Wiki Index
@@ -35,11 +35,13 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 ### entities
 
 - [[trigger-dev]] — background-job platform; env chosen by `TRIGGER_SECRET_KEY` prefix, code changes need a worker redeploy.
+- [[scrape-creators]] — third-party IG/TikTok scraping API used by stratton-internal; single-item fetch endpoints are GET `?url=` (a POST to one returns a bare 404), account/feed scrapes need a handle.
 
 ### skills
 
 - [[trigger-dev-environment-routing]] — "TTL (10m) expired" = job routed to the dev env (no persistent worker); diagnose by env/key, don't reach for a `ttl` knob.
 - [[ffmpeg-filter-version-compatibility]] — version-gated filter options (e.g. `curves interp=pchip`, ffmpeg 5.1+) fail the whole graph on older binaries; validate against the prod ffmpeg.
+- [[scrape-creators-get-endpoints]] — a bare "Scrape Creators returned 404: Not Found" usually means a GET-only `?url=` endpoint was hit with POST+JSON; when migrating a vendor client's call convention, grep every callsite for the old shape (one straggler `getInstagramPost` 404'd all IG "Mark posted" paths).
 - [[ios-permission-review-prompts]] — native iOS rating (SKStoreReview) and notification-permission dialogs are suppressed in dev/simulator or after first install; branch on real permission state with a Settings deep-link fallback.
 - [[macos-vision-ocr-models-missing]] — macOS 26 (Darwin 27) dropped the on-device Vision text models (`Found bundles : { }`); both legacy and modern Vision APIs fail. Swap to a self-contained engine like RapidOCR.
 - [[dvt-launch-does-not-wake-display]] — `pymobiledevice3 dvt launch` starts the app but doesn't wake the screen; DVT capture reads a black frame and flows time out. Wake first; disable Auto-Lock.

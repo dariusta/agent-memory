@@ -16,7 +16,7 @@
     },
     "stratton-internal": {
       "source_cwd": "/Users/darius/Documents/Stratton/stratton-internal",
-      "last_synced": "2026-07-01T00:24:10Z",
+      "last_synced": "2026-07-01T05:31:09Z",
       "last_commit_synced": null,
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
@@ -24,7 +24,9 @@
         "projects/stratton-internal/concepts/video-url-resolution.md",
         "skills/trigger-dev-environment-routing.md",
         "skills/ffmpeg-filter-version-compatibility.md",
-        "entities/trigger-dev.md"
+        "skills/scrape-creators-get-endpoints.md",
+        "entities/trigger-dev.md",
+        "entities/scrape-creators.md"
       ]
     },
     "kori": {

@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Fast-context scratchpad read first by wiki-query: recent activity, active threads, and key takeaways. Rewritten on every sync.
-updated: 2026-07-01T04:22:28Z
+updated: 2026-07-01T05:31:09Z
 ---
 
 # Hot — Working Memory
@@ -37,4 +37,5 @@ The first thing `wiki-query` reads. Keep it short and current.
 - **iOS 26/27 SDK hard-crashes "scene declared but not adopted."** An app whose Info.plist has a `UIApplicationSceneManifest` but still runs the legacy AppDelegate window lifecycle (stock Expo SDK 54 / RN 0.81) SIGTRAPs at launch (`_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`). Add a real SceneDelegate. → [[ios26-scene-lifecycle-launch-crash]]
 - **Don't build Xcode app-extension projects inside iCloud-synced `~/Documents`** — iCloud stamps `com.apple.FinderInfo` on freshly-built `.appex` and codesign rejects it; it re-stamps mid-build so stripping fails. Point `-derivedDataPath` at `~/Library`. → [[icloud-synced-repo-breaks-codesign]]
 - **Trigger.dev "TTL (10m) expired" = a job routed to the `dev` environment** (no persistent worker), chosen by the `TRIGGER_SECRET_KEY` prefix. → [[trigger-dev-environment-routing]]
+- **A bare "Scrape Creators returned 404: Not Found" is a wrong-HTTP-method tell, not a coverage gap.** Every Scrape Creators single-item fetch is GET `?url=`; a POST+JSON body to the same path 404s silently. When you migrate a vendor client's call convention, grep *every* callsite of the old shape — one un-migrated `getInstagramPost` (POST) 404'd all three IG "Mark posted" paths while a sibling `getPostVideo` hit the same endpoint correctly with GET. → [[scrape-creators-get-endpoints]], [[scrape-creators]]
 - **"The video" for a stratton-internal task isn't one column.** A produced cut usually lives in the `video_assets` table (public `url` or signed private `storage_path`), not `video_tasks.final_video_url` — so any list/enumeration must resolve through the canonical `apps/web/lib/final-video.ts`, not a single-column query, or it silently drops most videos. Add a **batch resolver next to the single-item one** for list surfaces. → [[video-url-resolution]]
