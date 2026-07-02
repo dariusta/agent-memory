@@ -14,7 +14,7 @@ base_confidence: 0.7
 lifecycle: draft
 lifecycle_changed: 2026-06-29
 created: 2026-06-29T02:19:37Z
-updated: 2026-07-02T00:15:52Z
+updated: 2026-07-02T06:03:38Z
 ---
 
 # Stratton Internal (mimic)
@@ -28,6 +28,7 @@ Source CWD: `/Users/darius/Documents/Stratton/stratton-internal`.
 The same monorepo also hosts a **multi-tenant e-commerce operating system** — an internal Shopify/Amboras competitor where **50–100 operators each run an isolated store** and **AI agents autonomously run the brand**. It is **"finish + extend," not greenfield**: a Medusa-v2-backed store OS (mid-strangler-migration off the Supabase `@stockton/commerce` layer), a `/storefront` app, and a 50+-agent runtime (`@stockton/agents`) already exist — so no off-the-shelf agent framework (AutoGPT/LangFlow/CrewAI/Letta) is needed. Full map: [[ecom-platform-architecture]]. Key pieces:
 - **Per-store hard isolation** (the #1 requirement) — Medusa **schema-per-tenant** + a proven cross-tenant leak test, plus `operator_store_members` membership + RLS: [[multi-tenant-store-isolation]] (reusable pattern: [[schema-per-tenant-isolation]]).
 - **Live-DB schema drift** — the code references a `commerce.*` schema that doesn't exist; all real tables are in `public` on `zrfisjbedcwjxzxxorfm` ("mimic-ecom"): [[ecom-schema-drift-commerce-vs-public]] (reusable lesson: [[parallel-agents-amplify-schema-drift]]).
+- **Per-store connections** — each store configures its own integrations (Stripe/3PL/ads/email/…) from Settings → Connections, stored in `brand_config` with encrypted write-only secrets: [[ecom-store-connections]].
 - Hosted on [[railway]] in the `ecom+apps` environment (branch `ecom/app`).
 
 ## Architecture
@@ -66,6 +67,10 @@ The build agent authors image/video prompts by reading a **per-model prompting g
 
 - **"Scrape & find voice" keeps yielding no clean clip → links a library voice.** Not the scraper and not the isolation models (RunPod logs show Demucs/DeepFilterNet3/pyannote/Whisper all loading and finishing cleanly on 6–15 s clips; the red lines are infra cold-start noise). The bottleneck is the **acceptance gate vs. the source**: `services/voice-isolation/pipeline.py` demands a continuous solo-speech window at high purity / near-zero overlap / low music residue, pointed at short, music-bedded, jump-cut TikToks. The **live RunPod endpoint env was already loosened** past the code defaults in a prior session (purity 0.97→0.92, window 8→5 s, SNR 12→9, overlap 0→0.2 s, music 0.06→0.10), so it still failing means the **source** is the limit — making a **YouTube long-form audio path (yt-dlp) the real lever**, and confirming `fal-ai/sam-audio` (a Demucs swap only) wouldn't help. Full map + gate table + rejection taxonomy: [[voice-scrape-isolation-pipeline]]. Two reusable lessons pulled out: [[deployed-env-overrides-code-defaults]] and [[instrument-before-tuning-a-gate]]. Change made (staging, uncommitted): an **always-on** `[scrape-character-voice] harvest complete {…rejected…}` diagnostic that fires on the library-fallback path where `harvest.rejected` was silently dropped, plus realigning `pipeline.py` defaults to the live env for truthfulness.
 - **Isolated voice still had background noise → "just her voice".** A *separate* facet of the same worker: the returned clip wasn't fully isolated because the pipeline was **deliberately** built to keep room/ambient noise for "recorded-on-an-iPhone" authenticity (Demucs was used to *locate* the window, then the common path output the **raw** audio; DeepFilterNet denoise was `off` by default). Fix: route the chosen window through DeepFilterNet in **both** output paths and flip `VI_ENHANCE_MODE off → full`. **Deploy gotcha:** the endpoint env flip only cleans the *music* path; the raw-passthrough denoise is a **code** change that isn't live until the ~10 GB CUDA image is rebuilt + repointed — see [[runpod-serverless-env-vs-image]]. Full architecture + tradeoff: [[voice-isolation-pipeline]].
+
+## Incidents distilled (2026-07-02)
+
+- **Ecom "Failed to load connections" was a mount-prefix routing bug, not a broken endpoint.** When `/ecom` was folded into the shared `apps/web` app its API routes moved under `app/api/ecom/*`, but the ecom API client (`ecom/lib/api.ts`) still fetched `/api${path}` → every panel call got Next's 404 **HTML** page instead of JSON. Fix: the client normalizes both bare and `/ecom/...` paths onto the `/api/ecom` mount, and all ~30 `api.*` call sites were swept to confirm each resolves to a real route. Reusable heuristic (HTML-where-JSON-expected = wrong route): [[html-page-where-json-expected]]. Same session built the [[ecom-store-connections|per-store connections config]] behind that panel. **Parallel-session hazard confirmed live:** a second Claude session was editing the same `ecom/app` worktree simultaneously (touched `api.ts`/`ConnectionsPanel` mid-task) — re-read shared ecom files before overwriting. → [[parallel-agents-amplify-schema-drift]]
 
 ## Operational notes
 

@@ -14,7 +14,7 @@ base_confidence: 0.66
 lifecycle: draft
 lifecycle_changed: 2026-07-02
 created: 2026-07-02T00:15:52Z
-updated: 2026-07-02T00:15:52Z
+updated: 2026-07-02T06:03:38Z
 ---
 
 # Stratton Ecom OS — Multi-Tenant Store Platform
@@ -25,7 +25,7 @@ The single most important audit finding: **this is "finish + extend," not greenf
 
 ## What already exists (the inventory)
 
-- **`/ecom` admin app** — Next.js, ~26 pages organized Build/Sell/Market/Operate/Settings. Home/Orders/Finance/Agents-chat/Comms are fully real; most catalog/customer/settings pages are **read-only Medusa proxies with honest empty states** (a strangler read-path). ^[extracted]
+- **`/ecom` admin app** — Next.js, ~26 pages organized Build/Sell/Market/Operate/Settings. Home/Orders/Finance/Agents-chat/Comms are fully real; most catalog/customer pages are **read-only Medusa proxies with honest empty states** (a strangler read-path). **Settings → Connections** (`/ecom/setup`) is now a real **per-store** integration-config surface (Stripe/3PL/ads/email/etc. stored in `brand_config`, encrypted write-only secrets) — see [[ecom-store-connections]]. ^[extracted]
 - **`/storefront`** — separate customer-facing Next.js app (cart → Stripe checkout → order, A/B + PostHog). ^[extracted]
 - **`services/medusa`** — a complete, deployable **Medusa v2.17.1** scaffold (Railway config, `medusa-config.js`, migrate+seed scripts, **plus schema-per-tenant machinery**). This is the commerce backend the strangler migrates *onto*. ^[extracted]
 - **`packages/commerce`** (`@stockton/commerce`, ~1,900 LOC) — the **legacy** commerce layer: ~17 `store_*` tables in Supabase (`store_orders`, `store_products`, `store_customers`, `store_carts`, `store_payments`…) accessed via raw Postgres. Still active read-side during the transition. ^[extracted]

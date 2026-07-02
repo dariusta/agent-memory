@@ -14,7 +14,7 @@ base_confidence: 0.63
 lifecycle: draft
 lifecycle_changed: 2026-07-02
 created: 2026-07-02T00:15:52Z
-updated: 2026-07-02T00:15:52Z
+updated: 2026-07-02T06:03:38Z
 ---
 
 # Stratton Ecom — Per-Store Multi-Tenant Isolation
@@ -57,3 +57,9 @@ Redis-backed **cache/event singletons in Medusa are process-global** — a real 
 - **(B) Instance-per-tenant:** a separate Medusa+DB per store — zero patch risk but 100+ Railway services and much higher cost.
 
 Chose **A**. The general trade-off write-up is [[schema-per-tenant-isolation]].
+
+## Per-store integration config
+
+"Nothing shared" also covers **credentials**: each store configures its own
+Stripe/3PL/ads/email/etc. from Settings, stored per-store with encrypted
+write-only secrets — not one platform-wide config. See [[ecom-store-connections]].

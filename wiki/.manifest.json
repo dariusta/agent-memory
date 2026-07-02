@@ -16,7 +16,7 @@
     },
     "stratton-internal": {
       "source_cwd": "/Users/darius/Documents/Stratton/stratton-internal",
-      "last_synced": "2026-07-02T00:15:52Z",
+      "last_synced": "2026-07-02T06:03:38Z",
       "last_commit_synced": null,
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
@@ -46,7 +46,9 @@
         "projects/stratton-internal/concepts/ecom-schema-drift-commerce-vs-public.md",
         "skills/schema-per-tenant-isolation.md",
         "skills/parallel-agents-amplify-schema-drift.md",
-        "entities/railway.md"
+        "entities/railway.md",
+        "projects/stratton-internal/concepts/ecom-store-connections.md",
+        "skills/html-page-where-json-expected.md"
       ]
     },
     "kori": {
