@@ -5,7 +5,7 @@ category: projects
 tags: [domain/web, domain/infra, domain/ai, type/architecture, visibility/internal]
 sources: [projects/stratton-internal]
 summary: >-
-    Next.js 15 app on Railway that generates AI UGC video ads ("run-agent-canvas"); background work runs on Trigger.dev; staging shares the prod Supabase DB.
+    Monorepo with two surfaces: (1) a Next.js/Railway app that generates AI UGC video ads ("run-agent-canvas"), and (2) a multi-tenant ecom OS (Medusa v2) where AI agents run brands. Background work on Trigger.dev.
 provenance:
   extracted: 0.7
   inferred: 0.25
@@ -14,7 +14,7 @@ base_confidence: 0.7
 lifecycle: draft
 lifecycle_changed: 2026-06-29
 created: 2026-06-29T02:19:37Z
-updated: 2026-07-01T08:30:39Z
+updated: 2026-07-02T00:15:52Z
 ---
 
 # Stratton Internal (mimic)
@@ -22,6 +22,13 @@ updated: 2026-07-01T08:30:39Z
 Internal tool (codename **"mimic"**) that generates AI UGC-style video ads. The core flow is **`run-agent-canvas`**: it builds short ad videos, applies a "realism"/de-AI post-processing pass over the rendered output, and casts AI character voices (Fish Audio, VoxCPM, Seedance clone) — including a **voice-scrape** step that discovers real creators matching a character, isolates a clean clip, and saves it to a voice library. See the full pipeline map + yield diagnosis in [[voice-scrape-isolation-pipeline]].
 
 Source CWD: `/Users/darius/Documents/Stratton/stratton-internal`.
+
+## Second surface: the Ecom OS
+
+The same monorepo also hosts a **multi-tenant e-commerce operating system** — an internal Shopify/Amboras competitor where **50–100 operators each run an isolated store** and **AI agents autonomously run the brand**. It is **"finish + extend," not greenfield**: a Medusa-v2-backed store OS (mid-strangler-migration off the Supabase `@stockton/commerce` layer), a `/storefront` app, and a 50+-agent runtime (`@stockton/agents`) already exist — so no off-the-shelf agent framework (AutoGPT/LangFlow/CrewAI/Letta) is needed. Full map: [[ecom-platform-architecture]]. Key pieces:
+- **Per-store hard isolation** (the #1 requirement) — Medusa **schema-per-tenant** + a proven cross-tenant leak test, plus `operator_store_members` membership + RLS: [[multi-tenant-store-isolation]] (reusable pattern: [[schema-per-tenant-isolation]]).
+- **Live-DB schema drift** — the code references a `commerce.*` schema that doesn't exist; all real tables are in `public` on `zrfisjbedcwjxzxxorfm` ("mimic-ecom"): [[ecom-schema-drift-commerce-vs-public]] (reusable lesson: [[parallel-agents-amplify-schema-drift]]).
+- Hosted on [[railway]] in the `ecom+apps` environment (branch `ecom/app`).
 
 ## Architecture
 

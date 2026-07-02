@@ -16,7 +16,7 @@
     },
     "stratton-internal": {
       "source_cwd": "/Users/darius/Documents/Stratton/stratton-internal",
-      "last_synced": "2026-07-01T08:40:00Z",
+      "last_synced": "2026-07-02T00:15:52Z",
       "last_commit_synced": null,
       "sync_source": "session-transcript-distill",
       "pages_in_vault": [
@@ -40,7 +40,13 @@
         "skills/deployed-env-overrides-code-defaults.md",
         "skills/instrument-before-tuning-a-gate.md",
         "projects/stratton-internal/concepts/voice-scraping-pipeline.md",
-        "skills/runpod-serverless-cold-start-latency.md"
+        "skills/runpod-serverless-cold-start-latency.md",
+        "projects/stratton-internal/concepts/ecom-platform-architecture.md",
+        "projects/stratton-internal/concepts/multi-tenant-store-isolation.md",
+        "projects/stratton-internal/concepts/ecom-schema-drift-commerce-vs-public.md",
+        "skills/schema-per-tenant-isolation.md",
+        "skills/parallel-agents-amplify-schema-drift.md",
+        "entities/railway.md"
       ]
     },
     "kori": {

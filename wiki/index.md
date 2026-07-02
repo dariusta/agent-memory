@@ -4,7 +4,7 @@ title: >-
 category: meta
 summary: >-
     Master index of every page in this knowledge wiki, grouped by category. Updated by wiki-update / wiki-capture on every sync.
-updated: 2026-07-01T08:40:00Z
+updated: 2026-07-02T00:15:52Z
 ---
 
 # Wiki Index
@@ -37,6 +37,9 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[voice-isolation-pipeline]] — stratton-internal: the *output-cleaning* half of the voice worker. It was deliberately tuned to KEEP room noise for "iPhone authenticity" (Demucs locates the window, the common path outputs raw audio, DeepFilterNet denoise `off` by default). 2026-07-01: routed both paths through DeepFilterNet + flipped `VI_ENHANCE_MODE off→full` for "just her voice"; the raw-path denoise needs an image rebuild, not just the env flip.
 - [[voice-scraping-pipeline]] — stratton-internal: the *selection layer* on top of voice isolation — rank banked clips (`rankHarvestedVoices`, `%fit`+rationale), auto-stamp #1, persist the top 3 to `voice_candidates` for instant switching, and a learning loop (`voice_candidate_feedback` + `loadVoiceLessons`) that replays operator overrides into the ranker prompt; migration 186 applied to prod; the ~10-min slowness was RunPod cold starts, not GPU.
 - [[model-catalog-fanout]] — stratton-internal: adding/removing one generation-model id fans out across ~15 sites; `model-catalog.ts` is the typed source of truth, but the Canvas node menu comes from MuAPI's live `/node-schemas` (~400 models), so `model-allowlist.ts` is what actually restricts it; a `skills-drift.test.ts` enforces consistency.
+- [[ecom-platform-architecture]] — stratton-internal's *second* surface: a multi-tenant Shopify/Amboras-competitor ecom OS (Medusa v2 strangler migration off `@stockton/commerce`, `/ecom` admin + `/storefront`, a 50+-agent runtime) where AI agents run 50–100 operators' isolated brands. "Finish + extend," not greenfield; deployed to Railway `ecom+apps`; 127 tests, migrations 188–196.
+- [[multi-tenant-store-isolation]] — stratton-internal ecom: "Shopify-grade, nothing shared" isolation — Medusa **schema-per-tenant** (ALS-fork + per-connection `search_path`) proven by a live cross-tenant leak test (ORM+raw-SQL, 40 concurrent, zero leak), plus `operator_store_members` membership + `is_store_member` RLS + `requireStoreMember` killing the cookie/service-role bypass; agent tools store-scoped.
+- [[ecom-schema-drift-commerce-vs-public]] — stratton-internal ecom: the codebase references a `commerce.*` Postgres schema that does NOT exist in the live DB (`zrfisjbedcwjxzxxorfm`) — every real table is in `public`; pervasive pre-existing drift. Ground-truth table + column reconciliation map (`brand_campaigns`→`ad_campaigns`, `utm_medium`→`utm_channel`, etc.).
 
 ### entities
 
@@ -44,6 +47,7 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[trigger-dev]] — background-job platform; env chosen by `TRIGGER_SECRET_KEY` prefix, code changes need a worker redeploy — a merged fix stays inert until `trigger deploy` (compare deployed worker date vs commit date; web redeploy ≠ worker deploy).
 - [[scrape-creators]] — third-party IG/TikTok scraping API used by stratton-internal; single-item fetch endpoints are GET `?url=` (a POST to one returns a bare 404), account/feed scrapes need a handle.
 - [[runpod]] — serverless GPU host for stratton-internal's ML workers (voice-isolation, comfy-realism, qc-inference, phone-relay); one endpoint per service, config split between live endpoint env vars and a pinned Docker image tag.
+- [[railway]] — the PaaS hosting all of Stratton (web apps, Medusa + Postgres/Redis, workers); deploys per git-branch × environment (ecom app = branch `ecom/app`, env `ecom+apps`); verify the target environment before provisioning billed infra; MCP/CLI tokens expire mid-session; a stale "deployed & LIVE" note ≠ live infra.
 
 ### skills
 
@@ -66,6 +70,8 @@ Compiled knowledge distilled from projects and conversations. This index lists e
 - [[ai-video-model-prompt-discipline]] — generative video models reward opposite prompt shapes: reference-token models (Seedance `@image1`) want role-only refs + short split cuts; image-to-video models (Happy Horse) want full descriptive prose+dialogue over a wired start frame. Bake exact-detail into the start frame; VO ≈2.5 words/sec; duration/aspect are node params, not prose.
 - [[single-candidate-bypasses-quality-gate]] — two traps in any "search → filter → link" flow: (1) a matcher that only runs with 2+ candidates lets a lone candidate through blind and silently ships a mismatch — keep the acceptability gate on for N=1; (2) when a structured filter attribute is missing, backfill it from the richest media you hold (vision on a reference face) rather than free-text tags, with explicit/operator values always winning. Surfaced by stratton's wrong-gender voice cast.
 - [[vitest-stale-worktree-pollution]] — running vitest from a repo root also collects test files under stale `.claude/worktrees/*` siblings, which fail with unrelated `@/` alias-resolution errors that aren't your change; scope with `--root <app>`. Any git worktree nested under the repo pollutes root-level test/lint/glob runs.
+- [[schema-per-tenant-isolation]] — hard multi-tenancy without N deployments: one app, one Postgres schema per tenant, request → verified membership → AsyncLocalStorage → per-connection `search_path`/ORM-manager fork (closes the raw-SQL leak). Enforce with an automated cross-tenant leak test (ORM+raw-SQL, concurrent), not trust; watch process-global caches (Redis) that leak even when the DB doesn't.
+- [[parallel-agents-amplify-schema-drift]] — fan-out agents faithfully copy the same wrong precedent, so a latent inconsistency (a `commerce.*` schema that doesn't exist) gets multiplied across every migration at once. Pin ground truth (DB/contract/deploy target) before fanning out; budget the reconciliation tax; audit the staged diff for secrets (`.env.bak`) + junk before agent-authored commits; the deploy host is the authoritative build.
 
 ### references
 
